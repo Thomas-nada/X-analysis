@@ -17,7 +17,7 @@
     <style>
         /* Base styles */
         body {
-            font-family: 'Poppins', sans-serif; /* Updated font */
+            font-family: 'Poppins', sans-serif; 
             transition: background-color 0.3s, color 0.3s;
         }
 
@@ -25,9 +25,9 @@
         :root {
             --intersect-blue: #2952E4;
             --intersect-orange: #F97F28;
-            --intersect-yellow: #FFC72F; /* From cube */
+            --intersect-yellow: #FFC72F; 
             --intersect-cream: #F0EBE0;
-            --intersect-dark-bg: #1a202c; /* A bit darker for contrast with blue */
+            --intersect-dark-bg: #1a202c; 
             --intersect-dark-card: #2d3748;
             --intersect-light-text: #f7fafc;
             --intersect-dark-text: #1f2937;
@@ -36,7 +36,7 @@
 
         /* Light Mode (default) */
         .light-mode {
-            background-color: var(--intersect-cream); /* Softer background */
+            background-color: var(--intersect-cream); 
             color: var(--intersect-dark-text); 
         }
         .light-mode .report-section, 
@@ -44,15 +44,15 @@
         .light-mode .post-card,
         .light-mode .table-container,
         .light-mode .upload-section {
-            background-color: #ffffff; /* Keep cards white for contrast on cream */
+            background-color: #ffffff; 
             color: var(--intersect-dark-text);
         }
         .light-mode .table-header th {
-            background-color: #e2e8f0; /* Slightly adjusted gray */
+            background-color: #e2e8f0; 
             color: #4a5568;
         }
          .light-mode .section-title-wrapper .section-title {
-            color: var(--intersect-blue); /* Main accent for section titles */
+            color: var(--intersect-blue); 
             border-bottom-color: var(--intersect-blue); 
         }
         .light-mode .text-main-header { color: var(--intersect-blue); } 
@@ -68,10 +68,10 @@
             background-color: var(--intersect-blue); color: white;
         }
         .light-mode .file-input-label:hover {
-            background-color: #1c3fb5; /* Darker blue */
+            background-color: #1c3fb5; 
         }
         .light-mode .load-button { 
-            background-color: #38a169; color: white; /* Green kept for consistency or change to an accent */
+            background-color: #38a169; color: white; 
         }
         .light-mode .load-button:hover {
             background-color: #2f855a;
@@ -80,7 +80,7 @@
              background-color: var(--intersect-orange); color: white;
         }
         .light-mode .slideshow-button:hover {
-            background-color: #dd6b20; /* Darker orange */
+            background-color: #dd6b20; 
         }
         .light-mode .download-png-button {
             background-color: var(--intersect-blue); color: white; 
@@ -95,7 +95,7 @@
             border-color: #cbd5e0; 
             color: var(--intersect-dark-text);
         }
-        .light-mode .company-logo { /* Invert white logo on light backgrounds */
+        .light-mode .company-logo { 
             filter: invert(1);
         }
 
@@ -119,7 +119,7 @@
             color: #e2e8f0;
         }
         .dark-mode .section-title-wrapper .section-title {
-            color: var(--intersect-blue); /* Keep blue vibrant in dark mode */
+            color: var(--intersect-blue); 
             border-bottom-color: var(--intersect-blue); 
         }
         .dark-mode .text-main-header { color: var(--intersect-blue); } 
@@ -132,7 +132,7 @@
             background-color: #2d3748; 
         }
         .dark-mode .table-container tbody tr:nth-child(odd) {
-            background-color: #354154; /* Slightly different for odd rows in dark */
+            background-color: #354154; 
         }
         .dark-mode .post-card:hover { 
             border-color: var(--intersect-orange);
@@ -140,7 +140,7 @@
          .dark-mode .list-item::before {
             color: var(--intersect-blue); 
         }
-        .dark-mode .theme-toggle-button { /* Themed toggle button */
+        .dark-mode .theme-toggle-button { 
             background-color: var(--intersect-orange);
             color: white;
         }
@@ -178,7 +178,7 @@
             border-color: #718096; 
             color: var(--intersect-light-text);
         }
-        .dark-mode .company-logo { /* Ensure no filter in dark mode if it's a white logo */
+        .dark-mode .company-logo { 
             filter: none;
         }
 
@@ -194,11 +194,11 @@
         .metric-card { padding: 1.5rem; }
         .light-mode .metric-card:hover, .light-mode .post-card-link:hover .post-card { 
             transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(41, 82, 228, 0.2), 0 4px 6px -2px rgba(41, 82, 228, 0.1); /* Blue shadow */
+            box-shadow: 0 10px 15px -3px rgba(41, 82, 228, 0.2), 0 4px 6px -2px rgba(41, 82, 228, 0.1); 
         }
         .dark-mode .metric-card:hover, .dark-mode .post-card-link:hover .post-card { 
             transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(249, 127, 40, 0.3), 0 4px 6px -2px rgba(249, 127, 40, 0.15); /* Orange shadow */
+            box-shadow: 0 10px 15px -3px rgba(249, 127, 40, 0.3), 0 4px 6px -2px rgba(249, 127, 40, 0.15); 
         }
         .metric-value { font-size: 2rem; font-weight: 700; }
         .light-mode .metric-value { color: var(--intersect-blue); }
@@ -348,6 +348,12 @@
             position: fixed; top: 30px; right: 30px; z-index: 2010;
         }
 
+        #howToGuide ol li { margin-bottom: 0.5rem; }
+        #howToGuide strong { font-weight: 600; }
+        .light-mode #howToGuide strong { color: var(--intersect-blue); }
+        .dark-mode #howToGuide strong { color: var(--intersect-orange); }
+
+
         @media print {
             body {
                 -webkit-print-color-adjust: exact !important;
@@ -396,8 +402,7 @@
             </button>
 
             <header class="mb-6 text-center pt-8 md:pt-12">
-                <!-- Logo added here -->
-                <img src="logo/logo.png" alt="Company Logo" class="company-logo mx-auto mb-4 h-12"> 
+                <img src="Untitled design (9).png" alt="Company Logo" class="company-logo mx-auto mb-4 h-16"> 
                 
                 <h1 id="reportMainTitle" class="text-4xl font-bold text-main-header">@IntersectMBO Analytics Report</h1>
                 <p class="text-xl text-sub-header mt-2">Interactive Account Analytics Report</p>
@@ -504,8 +509,23 @@
                     </table>
                 </div>
             </section>
+            
             <section id="interpretive-sections-container" class="report-section">
-                <section id="content-themes-dynamic" class="mb-12 report-section"> 
+                <div id="howToGuide" class="p-6">
+                    <h2 class="text-2xl font-semibold mb-4 text-center section-title">How to Use This Page</h2>
+                    <ol class="list-decimal list-inside space-y-3 text-lg">
+                        <li><strong>Prepare Your Data:</strong> Export your analytics data from X (Twitter) as a CSV file. This tool accepts both content-level (per post) and account overview (daily) CSVs.</li>
+                        <li><strong>Upload CSV:</strong> Click "Choose CSV File", select your file, then click "Load and Process Data".</li>
+                        <li><strong>View Analytics:</strong> Once loaded, relevant sections like Performance Metrics, Engagement Insights, and Top Posts will populate. The main report title will update if a channel name is found in your CSV.</li>
+                        <li><strong>Individual Post Details:</strong> For content CSVs, use the dropdown in the "Individual Post Analysis" section to see detailed metrics for each post.</li>
+                        <li><strong>Dynamic Insights:</strong> Sections for "Key Content Themes", "Key Observations", and "Conclusion" will automatically generate based on your uploaded data.</li>
+                        <li><strong>Download as PNG:</strong> Click the <i class="fas fa-image"></i> icon next to any section title to download that section as a PNG image.</li>
+                        <li><strong>View as Slides:</strong> Click "View as Slides" to see the report in a presentation format. Use the navigation controls at the bottom.</li>
+                        <li><strong>Toggle Theme:</strong> Use the <i class="fas fa-moon"></i> / <i class="fas fa-sun"></i> icon at the top right to switch between light and dark modes.</li>
+                    </ol>
+                </div>
+
+                <section id="content-themes-dynamic" class="mb-12 report-section hidden-section"> 
                     <div class="section-title-wrapper">
                         <h2 class="section-title">Key Content Themes</h2>
                         <button class="action-button download-png-button" data-section-id="content-themes-dynamic" title="Download as PNG" disabled><i class="fas fa-image"></i></button>
@@ -514,7 +534,7 @@
                         <p class="text-muted placeholder-text">Upload data to generate content themes.</p>
                     </div>
                 </section>
-                <section id="key-observations-dynamic" class="mb-12 report-section">
+                <section id="key-observations-dynamic" class="mb-12 report-section hidden-section">
                     <div class="section-title-wrapper">
                         <h2 class="section-title">Key Observations & Potential Insights</h2>
                         <button class="action-button download-png-button" data-section-id="key-observations-dynamic" title="Download as PNG" disabled><i class="fas fa-image"></i></button>
@@ -523,7 +543,7 @@
                         <p class="text-muted placeholder-text">Upload data to generate key observations.</p>
                     </div>
                 </section>
-                <section id="conclusion-dynamic" class="mb-12 report-section">
+                <section id="conclusion-dynamic" class="mb-12 report-section hidden-section">
                     <div class="section-title-wrapper">
                         <h2 class="section-title">Conclusion</h2>
                         <button class="action-button download-png-button" data-section-id="conclusion-dynamic" title="Download as PNG" disabled><i class="fas fa-image"></i></button>
@@ -610,6 +630,12 @@
         const overviewDailyTableHead = document.getElementById('overviewDailyTableHead');
         const overviewDailyTableBody = document.getElementById('overviewDailyTableBody');
 
+        // How-to guide and dynamic insight sections
+        const howToGuide = document.getElementById('howToGuide');
+        const contentThemesDynamicSection = document.getElementById('content-themes-dynamic');
+        const keyObservationsDynamicSection = document.getElementById('key-observations-dynamic');
+        const conclusionDynamicSection = document.getElementById('conclusion-dynamic');
+
         const contentThemesBody = document.getElementById('contentThemesBody');
         const keyObservationsBody = document.getElementById('keyObservationsBody');
         const conclusionBody = document.getElementById('conclusionBody');
@@ -689,6 +715,13 @@
                     const displayChannel = currentChannelName === "IntersectMBO" ? "IntersectMBO (Default)" : `@${currentChannelName}`;
                     uploadStatus.textContent = `Successfully loaded and processed '${file.name}' (${currentCsvType} data for ${displayChannel}).`;
                     uploadStatus.style.color = 'green';
+                    
+                    // Manage visibility of how-to guide and dynamic insights
+                    if(howToGuide) howToGuide.classList.add('hidden-section');
+                    if(contentThemesDynamicSection) contentThemesDynamicSection.classList.remove('hidden-section');
+                    if(keyObservationsDynamicSection) keyObservationsDynamicSection.classList.remove('hidden-section');
+                    if(conclusionDynamicSection) conclusionDynamicSection.classList.remove('hidden-section');
+                    
                     if(viewHtmlSlideShowButton) viewHtmlSlideShowButton.disabled = false;
                     enablePngDownloadButtons(); 
                 } catch (error) {
@@ -700,7 +733,7 @@
                      if (reportMainTitle) reportMainTitle.textContent = "@IntersectMBO Analytics Report"; 
                     uploadStatus.textContent = `Error: ${error.message}. Check console.`;
                     uploadStatus.style.color = 'red';
-                    resetUI(); 
+                    resetUI(); // This will show the how-to guide again
                 }
             };
             reader.onerror = function() {
@@ -711,7 +744,7 @@
                 currentCsvHeaders = [];
                 currentChannelName = "IntersectMBO"; 
                 if (reportMainTitle) reportMainTitle.textContent = "@IntersectMBO Analytics Report"; 
-                resetUI();
+                resetUI(); // This will show the how-to guide again
             };
             reader.readAsText(file);
         });
@@ -739,11 +772,14 @@
             postSelectorDropdown.disabled = true;
             individualPostDetailsContainer.innerHTML = '<p class="text-muted placeholder-text">Upload a Content CSV.</p>';
             contentAnalyticsSections.classList.add('hidden-section');
-            overviewSummaryCards.innerHTML = '<p class="text-muted placeholder-text col-span-full">Upload an Overview CSV.</p>';
-            overviewDailyTableHead.innerHTML = '';
-            overviewDailyTableBody.innerHTML = '<tr><td colspan="10" class="px-6 py-10 text-center text-muted placeholder-text">Upload an Overview CSV.</td></tr>';
             accountOverviewSection.classList.add('hidden-section');
             dataPeriodDisplay.textContent = "Upload a CSV file to view analytics.";
+            
+            if(howToGuide) howToGuide.classList.remove('hidden-section');
+            if(contentThemesDynamicSection) contentThemesDynamicSection.classList.add('hidden-section');
+            if(keyObservationsDynamicSection) keyObservationsDynamicSection.classList.add('hidden-section');
+            if(conclusionDynamicSection) conclusionDynamicSection.classList.add('hidden-section');
+
             if(viewHtmlSlideShowButton) viewHtmlSlideShowButton.disabled = true;
             contentThemesBody.innerHTML = '<p class="text-muted placeholder-text">Upload data to generate content themes.</p>';
             keyObservationsBody.innerHTML = '<p class="text-muted placeholder-text">Upload data to generate key observations.</p>';
@@ -1476,12 +1512,12 @@
             }
             
             let elementToCapture;
-            let tempParent = null; // To hold the temporary parent for cloned elements
+            let tempParent = null;
 
             if (sectionId === "individual-post-analysis") {
                 const detailsContainer = originalSectionElement.querySelector('#individualPostDetailsContainer');
                 if (detailsContainer && detailsContainer.innerHTML.trim() !== '' && !detailsContainer.querySelector('.placeholder-text')) {
-                    elementToCapture = detailsContainer.cloneNode(true); // Clone the details container
+                    elementToCapture = detailsContainer.cloneNode(true); 
                 } else {
                     if(uploadStatus) {
                         uploadStatus.textContent = `No post details to download for ${sectionTitle}.`;
@@ -1490,25 +1526,49 @@
                     return;
                 }
             } else {
-                // Clone the entire section, then remove the title wrapper from the clone
-                const clonedSection = originalSectionElement.cloneNode(true);
-                const titleWrapperInClone = clonedSection.querySelector('.section-title-wrapper');
-                if (titleWrapperInClone) {
-                    titleWrapperInClone.remove();
+                let contentBox = null;
+                // Find the first direct child that is NOT the title wrapper.
+                // This assumes the main content is directly after the title wrapper.
+                for (const child of originalSectionElement.children) {
+                    if (!child.classList.contains('section-title-wrapper')) {
+                        contentBox = child;
+                        break;
+                    }
                 }
-                elementToCapture = clonedSection; 
+                if (contentBox) {
+                    elementToCapture = contentBox.cloneNode(true);
+                } else {
+                    // Fallback: if no distinct content box, clone the whole section and remove title.
+                    // This might happen if the section has no title wrapper (e.g., older structure)
+                    // or if content is directly in the section.
+                    elementToCapture = originalSectionElement.cloneNode(true);
+                    const titleWrapperInClone = elementToCapture.querySelector('.section-title-wrapper');
+                    if (titleWrapperInClone) {
+                        titleWrapperInClone.remove();
+                    }
+                }
+            }
+            
+            tempParent = document.createElement('div');
+            // Apply report section's background to the temp parent if the elementToCapture doesn't have its own
+            // and we want to ensure a consistent (but potentially non-transparent) background for the capture.
+            // For transparent PNGs, this step for background might not be needed if elementToCapture has its own.
+            // The `backgroundColor: null` in html2canvas should handle transparency.
+            tempParent.style.padding = originalSectionElement.style.padding || "1.5rem"; // Match padding
+            tempParent.style.backgroundColor = window.getComputedStyle(originalSectionElement).backgroundColor;
+
+            tempParent.style.position = 'absolute';
+            tempParent.style.left = '-9999px'; 
+            tempParent.style.top = '-9999px';
+            tempParent.style.width = (originalSectionElement.offsetWidth || 800) + 'px';
+            
+            // Ensure cloned element also gets theme-specific styling if it relies on parent classes
+             if (body.classList.contains('dark-mode')) {
+                tempParent.classList.add('dark-mode'); // Apply dark mode to temp parent for context
+            } else {
+                tempParent.classList.add('light-mode');
             }
 
-            // Create a temporary parent for proper rendering if elementToCapture is not in DOM or needs isolation
-            tempParent = document.createElement('div');
-            tempParent.style.position = 'absolute';
-            tempParent.style.left = '-9999px';
-            tempParent.style.top = '-9999px';
-            // Match the background of the original section for the temporary parent to avoid transparent areas in the PNG
-            // if the content itself doesn't have a background.
-            // However, for transparent PNG, the elementToCapture's direct background is what matters.
-            // Forcing a specific width on tempParent can help with layout consistency.
-            tempParent.style.width = (elementToCapture.offsetWidth || 800) + 'px'; // Use offsetWidth or a default.
             tempParent.appendChild(elementToCapture);
             document.body.appendChild(tempParent);
 
@@ -1519,8 +1579,8 @@
                 backgroundColor: null, // For transparent background
                 scrollX: 0,
                 scrollY: 0,
-                // Let html2canvas determine width and height from the elementToCapture itself
-                // This is often more reliable than trying to set it manually, especially for dynamic content.
+                width: elementToCapture.scrollWidth, 
+                height: elementToCapture.scrollHeight,
                 logging: true 
             }).then(canvas => {
                 const dataUrl = canvas.toDataURL('image/png');
@@ -1568,8 +1628,20 @@
                     button.disabled = (postSelectorDropdown.value === "" || !individualPostDetailsContainer.innerHTML.trim() || individualPostDetailsContainer.querySelector('.placeholder-text')); 
                 } else {
                     const sectionElement = document.getElementById(sectionId);
-                    const placeholder = sectionElement ? sectionElement.querySelector('.placeholder-text') : true; 
-                    button.disabled = !sectionElement || (placeholder && sectionElement.contains(placeholder));
+                    // Enable if the section is visible (not having hidden-section) and its content body does not have placeholder-text
+                    const bodyId = sectionId.replace('-dynamic', 'Body'); // e.g. content-themes-dynamic -> contentThemesBody
+                    const sectionBodyElement = document.getElementById(bodyId);
+
+                    if(sectionElement && sectionElement.classList.contains('hidden-section')){
+                         button.disabled = true;
+                    } else if (sectionBodyElement && sectionBodyElement.querySelector('.placeholder-text')) {
+                         button.disabled = true;
+                    } else if (sectionElement && sectionElement.querySelector('.placeholder-text') && !sectionBodyElement){ // For non-dynamic sections
+                         button.disabled = true;
+                    }
+                    else {
+                         button.disabled = false;
+                    }
                 }
             });
         }
