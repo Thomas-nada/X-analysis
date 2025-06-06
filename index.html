@@ -9,149 +9,171 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
             onerror="console.error('CRITICAL ERROR: Failed to load html2canvas script. PNG generation will not work.'); if(document.getElementById('uploadStatus')) { document.getElementById('uploadStatus').textContent = 'Error: Failed to load image capture library.'; document.getElementById('uploadStatus').style.color = 'red'; }">
     </script>
+    <!-- Poppins Font Import -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
         /* Base styles */
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Poppins', sans-serif; /* Updated font */
             transition: background-color 0.3s, color 0.3s;
         }
 
+        /* Color Palette from images */
+        :root {
+            --intersect-blue: #2952E4;
+            --intersect-orange: #F97F28;
+            --intersect-yellow: #FFC72F; /* From cube */
+            --intersect-cream: #F0EBE0;
+            --intersect-dark-bg: #1a202c; /* A bit darker for contrast with blue */
+            --intersect-dark-card: #2d3748;
+            --intersect-light-text: #f7fafc;
+            --intersect-dark-text: #1f2937;
+        }
+
+
         /* Light Mode (default) */
         .light-mode {
-            background-color: #f3f4f6; 
-            color: #1f2937; 
+            background-color: var(--intersect-cream); /* Softer background */
+            color: var(--intersect-dark-text); 
         }
         .light-mode .report-section, 
         .light-mode .metric-card, 
         .light-mode .post-card,
         .light-mode .table-container,
         .light-mode .upload-section {
-            background-color: #ffffff;
-            color: #1f2937;
+            background-color: #ffffff; /* Keep cards white for contrast on cream */
+            color: var(--intersect-dark-text);
         }
         .light-mode .table-header th {
-            background-color: #e5e7eb;
-            color: #374151;
+            background-color: #e2e8f0; /* Slightly adjusted gray */
+            color: #4a5568;
         }
-         .light-mode .section-title-wrapper .section-title { /* Adjusted for button alignment */
-            color: #111827; 
-            border-bottom-color: #3b82f6; 
+         .light-mode .section-title-wrapper .section-title {
+            color: var(--intersect-blue); /* Main accent for section titles */
+            border-bottom-color: var(--intersect-blue); 
         }
-        .light-mode .text-main-header { color: #3b82f6; } 
-        .light-mode .text-sub-header { color: #4b5563; } 
-        .light-mode .text-muted { color: #6b7280; } 
+        .light-mode .text-main-header { color: var(--intersect-blue); } 
+        .light-mode .text-sub-header { color: #4a5568; } 
+        .light-mode .text-muted { color: #718096; } 
         .light-mode .table-container tbody tr:nth-child(even) {
-            background-color: #f9fafb; 
+            background-color: #f7fafc; 
         }
         .light-mode .table-container tbody tr:nth-child(odd) {
             background-color: #ffffff;
         }
         .light-mode .file-input-label {
-            background-color: #3b82f6; color: white;
+            background-color: var(--intersect-blue); color: white;
         }
         .light-mode .file-input-label:hover {
-            background-color: #2563eb;
+            background-color: #1c3fb5; /* Darker blue */
         }
         .light-mode .load-button { 
-            background-color: #16a34a; color: white;
+            background-color: #38a169; color: white; /* Green kept for consistency or change to an accent */
         }
         .light-mode .load-button:hover {
-            background-color: #15803d;
+            background-color: #2f855a;
         }
         .light-mode .slideshow-button { 
-             background-color: #d97706; color: white; /* Amber color */
+             background-color: var(--intersect-orange); color: white;
         }
         .light-mode .slideshow-button:hover {
-            background-color: #b45309;
+            background-color: #dd6b20; /* Darker orange */
         }
         .light-mode .download-png-button {
-            background-color: #4f46e5; color: white; /* Indigo for PNG download */
+            background-color: var(--intersect-blue); color: white; 
+            opacity: 0.8;
         }
         .light-mode .download-png-button:hover {
-            background-color: #4338ca;
+            opacity: 1;
+            background-color: #1c3fb5;
         }
         .light-mode select {
             background-color: white;
-            border-color: #d1d5db; 
-            color: #1f2937;
+            border-color: #cbd5e0; 
+            color: var(--intersect-dark-text);
         }
 
 
         /* Dark Mode */
         .dark-mode {
-            background-color: #1f2937; 
-            color: #f3f4f6; 
+            background-color: var(--intersect-dark-bg); 
+            color: var(--intersect-light-text); 
         }
         .dark-mode .report-section,
         .dark-mode .metric-card,
         .dark-mode .post-card,
         .dark-mode .table-container,
         .dark-mode .upload-section {
-            background-color: #374151; 
-            color: #f3f4f6;
-            border-color: #4b5563;
+            background-color: var(--intersect-dark-card); 
+            color: var(--intersect-light-text);
+            border-color: #4a5568;
         }
         .dark-mode .table-header th {
-            background-color: #4b5563; 
-            color: #e5e7eb;
+            background-color: #4a5568; 
+            color: #e2e8f0;
         }
-        .dark-mode .section-title-wrapper .section-title { /* Adjusted for button alignment */
-            color: #d1d5db; 
-            border-bottom-color: #60a5fa; 
+        .dark-mode .section-title-wrapper .section-title {
+            color: var(--intersect-blue); /* Keep blue vibrant in dark mode */
+            border-bottom-color: var(--intersect-blue); 
         }
-        .dark-mode .text-main-header { color: #60a5fa; } 
-        .dark-mode .text-sub-header { color: #9ca3af; } 
-        .dark-mode .text-muted { color: #d1d5db; } 
+        .dark-mode .text-main-header { color: var(--intersect-blue); } 
+        .dark-mode .text-sub-header { color: #a0aec0; } 
+        .dark-mode .text-muted { color: #cbd5e0; } 
         .dark-mode .table-container tbody tr {
-            border-color: #4b5563;
+            border-color: #4a5568;
         }
         .dark-mode .table-container tbody tr:nth-child(even) {
-            background-color: #4b5563; 
+            background-color: #2d3748; 
         }
         .dark-mode .table-container tbody tr:nth-child(odd) {
-            background-color: #374151;
+            background-color: #354154; /* Slightly different for odd rows in dark */
         }
         .dark-mode .post-card:hover { 
-            border-color: #60a5fa;
+            border-color: var(--intersect-orange);
         }
          .dark-mode .list-item::before {
-            color: #60a5fa; 
+            color: var(--intersect-blue); 
         }
-        .dark-mode .theme-toggle-button {
-            background-color: #4b5563;
-            color: #f3f4f6;
+        .dark-mode .theme-toggle-button { /* Themed toggle button */
+            background-color: var(--intersect-orange);
+            color: white;
         }
         .dark-mode .theme-toggle-button:hover {
-            background-color: #374151;
+            background-color: #dd6b20;
         }
         .dark-mode .file-input-label {
-            background-color: #60a5fa; color: #1f2937;
+            background-color: var(--intersect-blue); color: white;
         }
         .dark-mode .file-input-label:hover {
-            background-color: #3b82f6;
+            background-color: #1c3fb5;
         }
         .dark-mode .load-button { 
-            background-color: #22c55e; color: #1f2937;
+            background-color: #48bb78; color: var(--intersect-dark-bg);
         }
         .dark-mode .load-button:hover {
-            background-color: #16a34a;
+            background-color: #38a169;
         }
         .dark-mode .slideshow-button { 
-             background-color: #f59e0b; color: #1f2937; /* Amber color */
+             background-color: var(--intersect-orange); color: white;
         }
         .dark-mode .slideshow-button:hover {
-            background-color: #d97706;
+            background-color: #dd6b20;
         }
         .dark-mode .download-png-button {
-            background-color: #6366f1; color: #e0e7ff; /* Lighter Indigo for dark mode */
+            background-color: var(--intersect-blue); color: white;
+            opacity: 0.9;
         }
         .dark-mode .download-png-button:hover {
-            background-color: #4f46e5;
+            opacity: 1;
+            background-color: #1c3fb5;
         }
         .dark-mode select {
-            background-color: #4b5563; 
-            border-color: #6b7280; 
-            color: #f3f4f6;
+            background-color: #4a5568; 
+            border-color: #718096; 
+            color: var(--intersect-light-text);
         }
 
         /* Card styles */
@@ -163,11 +185,18 @@
             margin-bottom: 2rem;
         }
         .metric-card { padding: 1.5rem; }
-        .metric-card:hover, .post-card-link:hover .post-card { 
+        .light-mode .metric-card:hover, .light-mode .post-card-link:hover .post-card { 
             transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 15px -3px rgba(41, 82, 228, 0.2), 0 4px 6px -2px rgba(41, 82, 228, 0.1); /* Blue shadow */
+        }
+        .dark-mode .metric-card:hover, .dark-mode .post-card-link:hover .post-card { 
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(249, 127, 40, 0.3), 0 4px 6px -2px rgba(249, 127, 40, 0.15); /* Orange shadow */
         }
         .metric-value { font-size: 2rem; font-weight: 700; }
+        .light-mode .metric-value { color: var(--intersect-blue); }
+        .dark-mode .metric-value { color: var(--intersect-orange); }
+
         .metric-label { font-size: 0.875rem; }
         .post-card { 
             overflow: hidden; border: 2px solid transparent; display: flex; 
@@ -175,16 +204,16 @@
         }
         .post-card-link { display: block; text-decoration: none; border-radius: 0.75rem; }
         .post-card-link .post-card { transition: border-color 0.2s ease-in-out; }
-        .light-mode .post-card-link:hover .post-card { border-color: #3b82f6; }
-        .dark-mode .post-card-link:hover .post-card { border-color: #60a5fa; }
+        .light-mode .post-card-link:hover .post-card { border-color: var(--intersect-blue); }
+        .dark-mode .post-card-link:hover .post-card { border-color: var(--intersect-orange); }
         .post-card-wrapper .post-card { background-color: inherit; color: inherit;}
 
         /* Table styles */
-        .table-header th { cursor: pointer; position: relative; padding-right: 1.5rem; }
+        .table-header th { cursor: pointer; position: relative; padding-right: 1.5rem; font-weight: 600;}
         .table-header th .sort-icon { position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); font-size: 0.8em; }
         .table-container { overflow-x: auto; }
         
-        .section-title-wrapper { /* New wrapper for title and PNG button */
+        .section-title-wrapper { 
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -192,27 +221,34 @@
             border-bottom-width: 2px;
             padding-bottom: 0.5rem; 
         }
+        .light-mode .section-title-wrapper { border-bottom-color: var(--intersect-blue); }
+        .dark-mode .section-title-wrapper { border-bottom-color: var(--intersect-orange); }
+
         .section-title {
             font-size: 1.875rem; font-weight: 600; 
-            /* margin-bottom and border removed, handled by wrapper */
         }
+        .light-mode .section-title { color: var(--intersect-blue); }
+        .dark-mode .section-title { color: var(--intersect-orange); }
+        
         .download-png-button {
-            padding: 0.3rem 0.6rem; /* Smaller padding for icon button */
+            padding: 0.3rem 0.6rem; 
             font-size: 0.8rem;
             border-radius: 0.375rem;
         }
 
 
         .list-item::before { content: "✓"; margin-right: 0.5rem; font-weight: bold; }
-        .light-mode .list-item::before { color: #3b82f6; } 
+        .light-mode .list-item::before { color: var(--intersect-blue); } 
+        .dark-mode .list-item::before { color: var(--intersect-orange); } 
+
 
         .theme-toggle-button {
             position: fixed; top: 20px; right: 20px; padding: 0.75rem; border-radius: 50%;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 1000; cursor: pointer;
             transition: background-color 0.3s, color 0.3s;
         }
-         .light-mode .theme-toggle-button { background-color: #3b82f6; color: white; }
-        .light-mode .theme-toggle-button:hover { background-color: #2563eb; }
+         .light-mode .theme-toggle-button { background-color: var(--intersect-blue); color: white; }
+        .light-mode .theme-toggle-button:hover { background-color: #1c3fb5; }
         
         .upload-section { }
         .file-input-label, .action-button { 
@@ -249,8 +285,8 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 2000; overflow-y: auto; padding: 2rem; 
         }
-        .light-mode #htmlSlideShowContainer { background-color: #e5e7eb; } 
-        .dark-mode #htmlSlideShowContainer { background-color: #111827; } 
+        .light-mode #htmlSlideShowContainer { background-color: var(--intersect-cream); } 
+        .dark-mode #htmlSlideShowContainer { background-color: var(--intersect-dark-bg); } 
 
         .html-slide {
             border-radius: 0.5rem; padding: 2rem; 
@@ -263,11 +299,14 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             overflow: hidden; 
         }
-        .light-mode .html-slide { background-color: #ffffff; color: #1f2937;}
-        .dark-mode .html-slide { background-color: #374151; color: #f3f4f6;}
+        .light-mode .html-slide { background-color: #ffffff; color: var(--intersect-dark-text);}
+        .dark-mode .html-slide { background-color: var(--intersect-dark-card); color: var(--intersect-light-text);}
         
         .html-slide.active { display: flex; }
         .html-slide-title { font-size: 2em; font-weight: bold; margin-bottom: 0.5em; text-align: center;} 
+        .light-mode .html-slide-title { color: var(--intersect-blue); }
+        .dark-mode .html-slide-title { color: var(--intersect-orange); }
+
         .html-slide-explainer { font-size: 0.9em; font-style: italic; margin-bottom: 1.5em; text-align: center; max-width: 80%;}
         .html-slide-content { 
             width: 100%; 
@@ -293,10 +332,10 @@
             padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: 500;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        .light-mode #slideShowControls button { background-color: #3b82f6; color: white; }
-        .light-mode #slideShowControls button:hover { background-color: #2563eb; }
-        .dark-mode #slideShowControls button { background-color: #60a5fa; color: #1f2937; }
-        .dark-mode #slideShowControls button:hover { background-color: #3b82f6; }
+        .light-mode #slideShowControls button { background-color: var(--intersect-blue); color: white; }
+        .light-mode #slideShowControls button:hover { background-color: #1c3fb5; }
+        .dark-mode #slideShowControls button { background-color: var(--intersect-orange); color: white; }
+        .dark-mode #slideShowControls button:hover { background-color: #dd6b20; }
         
         #exitSlideShowButton {
             position: fixed; top: 30px; right: 30px; z-index: 2010;
@@ -307,7 +346,7 @@
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
-            #mainReportContainer, #slideShowControls, #exitSlideShowButton, #theme-toggle, .download-png-button { /* Hide PNG buttons in print */
+            #mainReportContainer, #slideShowControls, #exitSlideShowButton, #theme-toggle, .download-png-button { 
                 display: none !important;
             }
             #htmlSlideShowContainer {
@@ -415,7 +454,7 @@
                     </div>
                     <div class="grid md:grid-cols-2 gap-6">
                         <div class="metric-card text-center">
-                            <div id="engagementRateDisplayContent" class="metric-value text-blue-600 dark:text-blue-400">N/A</div>
+                            <div id="engagementRateDisplayContent" class="metric-value">N/A</div>
                             <div class="metric-label text-muted">Overall Engagement Rate</div>
                             <p class="text-xs text-muted mt-1">(Based on 'Engagements' column / Total Impressions)</p>
                         </div>
@@ -484,7 +523,7 @@
                     </div>
                 </section>
             </section>
-            <footer class="text-center mt-12 py-6 border-t text-muted"><p class="text-sm">&copy; <span id="currentYear"></span> IntersectMBO Analytics Report.</p></footer>
+            <footer class="text-center mt-12 py-6 border-t text-muted"><p class="text-sm">&copy; <span id="currentYear"></span> IntersectMBO</p></footer>
         </div>
     </div>
 
@@ -1425,52 +1464,63 @@
                 uploadStatus.textContent = `Generating PNG for ${sectionTitle}...`;
                 uploadStatus.style.color = 'inherit';
             }
-
-            // 1. Clone the section to avoid modifying the original
-            const clonedSection = originalSectionElement.cloneNode(true);
-
-            // 2. Remove the title wrapper (which contains the button and title) from the clone
-            const titleWrapperInClone = clonedSection.querySelector('.section-title-wrapper');
-            if (titleWrapperInClone) {
-                titleWrapperInClone.remove();
-            }
             
-            // 3. For individual post analysis, we only want the details container if it exists and has content
-            let elementToCapture = clonedSection; // Default to the modified clone
+            // Determine what exactly to capture for PNG
+            let elementToCapture = originalSectionElement;
+            // For sections with a title wrapper, we want to capture *only* the content below it.
+            // For 'individual-post-analysis', we specifically target its details container if it has content.
             if (sectionId === "individual-post-analysis") {
-                const detailsContainerClone = clonedSection.querySelector('#individualPostDetailsContainer');
-                if (detailsContainerClone && detailsContainerClone.innerHTML.trim() !== '' && !detailsContainerClone.querySelector('.placeholder-text')) {
-                    elementToCapture = detailsContainerClone;
-                } else { // If no details, don't download an empty box or placeholder
+                const detailsContainer = originalSectionElement.querySelector('#individualPostDetailsContainer');
+                if (detailsContainer && detailsContainer.innerHTML.trim() !== '' && !detailsContainer.querySelector('.placeholder-text')) {
+                    elementToCapture = detailsContainer;
+                } else {
                     if(uploadStatus) {
                         uploadStatus.textContent = `No post details to download for ${sectionTitle}.`;
                         uploadStatus.style.color = 'orange';
                     }
                     return;
                 }
+            } else {
+                // For other sections, try to find the main content div (e.g., the one holding tables, lists, or cards)
+                // This assumes content is typically inside a div child of the .report-section, excluding .section-title-wrapper
+                let contentBox = null;
+                Array.from(originalSectionElement.children).forEach(child => {
+                    if (!child.classList.contains('section-title-wrapper')) {
+                        contentBox = child; // Assume the first non-title-wrapper child is the main content
+                    }
+                });
+                if (contentBox) {
+                    elementToCapture = contentBox;
+                } else {
+                    // Fallback if direct content box isn't found, capture the whole section minus title
+                    const clonedSectionForCapture = originalSectionElement.cloneNode(true);
+                    const titleWrapperInClone = clonedSectionForCapture.querySelector('.section-title-wrapper');
+                    if (titleWrapperInClone) titleWrapperInClone.remove();
+                    elementToCapture = clonedSectionForCapture; 
+                    // Note: This cloned element needs to be temporarily appended to body for html2canvas if not elementToCapture.
+                }
             }
 
 
-            // 4. Prepare the elementToCapture for rendering (off-screen)
-            //    This helps html2canvas calculate layout correctly, especially for elements not fully in view.
-            elementToCapture.style.position = 'absolute';
-            elementToCapture.style.left = '-9999px';
-            elementToCapture.style.top = '-9999px';
-            // Ensure the element is temporarily added to the DOM if it's not already part of it (e.g. if detailsContainerClone was used)
-            // This is only necessary if elementToCapture is not already in the DOM.
-            // Since clonedSection is not in the DOM, and elementToCapture might be a child of it,
-            // we must append the top-level element we are capturing (elementToCapture)
-            document.body.appendChild(elementToCapture);
+            // Temporarily append to body if we are capturing a clone or a specific child that might not be directly laid out
+            let tempAppended = false;
+            if (!document.body.contains(elementToCapture)) {
+                elementToCapture.style.position = 'absolute';
+                elementToCapture.style.left = '-9999px'; // Position off-screen
+                elementToCapture.style.top = '-9999px';
+                document.body.appendChild(elementToCapture);
+                tempAppended = true;
+            }
 
 
             html2canvas(elementToCapture, { 
                 useCORS: true,
                 allowTaint: true,
-                backgroundColor: null, // For transparent background
+                backgroundColor: null, // Transparent background
                 scrollX: 0,
                 scrollY: 0,
-                width: elementToCapture.scrollWidth, // Capture full width of the targeted content
-                height: elementToCapture.scrollHeight, // Capture full height of the targeted content
+                width: elementToCapture.scrollWidth, 
+                height: elementToCapture.scrollHeight,
                 logging: true 
             }).then(canvas => {
                 const dataUrl = canvas.toDataURL('image/png');
@@ -1493,8 +1543,7 @@
                     uploadStatus.style.color = 'red';
                 }
             }).finally(() => {
-                // Clean up the appended elementToCapture from the body
-                if (elementToCapture.parentElement === document.body) {
+                if (tempAppended && elementToCapture.parentElement === document.body) {
                      document.body.removeChild(elementToCapture);
                 }
             });
@@ -1505,9 +1554,8 @@
                 button.addEventListener('click', function() {
                     const sectionId = this.dataset.sectionId;
                     const sectionElement = document.getElementById(sectionId);
-                    // Get title from the actual h2 inside the title wrapper, not from the button's parent
                     const sectionTitleElement = sectionElement ? sectionElement.querySelector('.section-title-wrapper .section-title') : null;
-                    const sectionTitleText = sectionTitleElement ? sectionTitleElement.textContent.trim() : sectionId.replace(/-/g, ' '); // Fallback title
+                    const sectionTitleText = sectionTitleElement ? sectionTitleElement.textContent.trim() : sectionId.replace(/-/g, ' '); 
                     downloadSectionAsPng(sectionId, sectionTitleText);
                 });
             });
@@ -1519,9 +1567,8 @@
                 if (sectionId === 'individual-post-analysis') {
                     button.disabled = (postSelectorDropdown.value === "" || !individualPostDetailsContainer.innerHTML.trim() || individualPostDetailsContainer.querySelector('.placeholder-text')); 
                 } else {
-                     // Enable if the section is visible and not just a placeholder
                     const sectionElement = document.getElementById(sectionId);
-                    const placeholder = sectionElement ? sectionElement.querySelector('.placeholder-text') : true; // Assume placeholder if no element
+                    const placeholder = sectionElement ? sectionElement.querySelector('.placeholder-text') : true; 
                     button.disabled = !sectionElement || (placeholder && sectionElement.contains(placeholder));
                 }
             });
