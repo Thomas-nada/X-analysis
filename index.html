@@ -95,6 +95,9 @@
             border-color: #cbd5e0; 
             color: var(--intersect-dark-text);
         }
+        .light-mode .company-logo { /* Invert white logo on light backgrounds */
+            filter: invert(1);
+        }
 
 
         /* Dark Mode */
@@ -175,6 +178,10 @@
             border-color: #718096; 
             color: var(--intersect-light-text);
         }
+        .dark-mode .company-logo { /* Ensure no filter in dark mode if it's a white logo */
+            filter: none;
+        }
+
 
         /* Card styles */
         .report-section, .metric-card, .post-card-wrapper, .table-container, .upload-section { 
@@ -389,6 +396,9 @@
             </button>
 
             <header class="mb-6 text-center pt-8 md:pt-12">
+                <!-- Logo added here -->
+                <img src="logo/logo.png" alt="Company Logo" class="company-logo mx-auto mb-4 h-12"> 
+                
                 <h1 id="reportMainTitle" class="text-4xl font-bold text-main-header">@IntersectMBO Analytics Report</h1>
                 <p class="text-xl text-sub-header mt-2">Interactive Account Analytics Report</p>
                 <p id="data-period-display" class="text-sm text-muted">Upload a CSV file to view analytics.</p>
@@ -1465,14 +1475,13 @@
                 uploadStatus.style.color = 'inherit';
             }
             
-            // Determine what exactly to capture for PNG
-            let elementToCapture = originalSectionElement;
-            // For sections with a title wrapper, we want to capture *only* the content below it.
-            // For 'individual-post-analysis', we specifically target its details container if it has content.
+            let elementToCapture;
+            let tempParent = null; // To hold the temporary parent for cloned elements
+
             if (sectionId === "individual-post-analysis") {
                 const detailsContainer = originalSectionElement.querySelector('#individualPostDetailsContainer');
                 if (detailsContainer && detailsContainer.innerHTML.trim() !== '' && !detailsContainer.querySelector('.placeholder-text')) {
-                    elementToCapture = detailsContainer;
+                    elementToCapture = detailsContainer.cloneNode(true); // Clone the details container
                 } else {
                     if(uploadStatus) {
                         uploadStatus.textContent = `No post details to download for ${sectionTitle}.`;
@@ -1481,46 +1490,37 @@
                     return;
                 }
             } else {
-                // For other sections, try to find the main content div (e.g., the one holding tables, lists, or cards)
-                // This assumes content is typically inside a div child of the .report-section, excluding .section-title-wrapper
-                let contentBox = null;
-                Array.from(originalSectionElement.children).forEach(child => {
-                    if (!child.classList.contains('section-title-wrapper')) {
-                        contentBox = child; // Assume the first non-title-wrapper child is the main content
-                    }
-                });
-                if (contentBox) {
-                    elementToCapture = contentBox;
-                } else {
-                    // Fallback if direct content box isn't found, capture the whole section minus title
-                    const clonedSectionForCapture = originalSectionElement.cloneNode(true);
-                    const titleWrapperInClone = clonedSectionForCapture.querySelector('.section-title-wrapper');
-                    if (titleWrapperInClone) titleWrapperInClone.remove();
-                    elementToCapture = clonedSectionForCapture; 
-                    // Note: This cloned element needs to be temporarily appended to body for html2canvas if not elementToCapture.
+                // Clone the entire section, then remove the title wrapper from the clone
+                const clonedSection = originalSectionElement.cloneNode(true);
+                const titleWrapperInClone = clonedSection.querySelector('.section-title-wrapper');
+                if (titleWrapperInClone) {
+                    titleWrapperInClone.remove();
                 }
+                elementToCapture = clonedSection; 
             }
 
-
-            // Temporarily append to body if we are capturing a clone or a specific child that might not be directly laid out
-            let tempAppended = false;
-            if (!document.body.contains(elementToCapture)) {
-                elementToCapture.style.position = 'absolute';
-                elementToCapture.style.left = '-9999px'; // Position off-screen
-                elementToCapture.style.top = '-9999px';
-                document.body.appendChild(elementToCapture);
-                tempAppended = true;
-            }
+            // Create a temporary parent for proper rendering if elementToCapture is not in DOM or needs isolation
+            tempParent = document.createElement('div');
+            tempParent.style.position = 'absolute';
+            tempParent.style.left = '-9999px';
+            tempParent.style.top = '-9999px';
+            // Match the background of the original section for the temporary parent to avoid transparent areas in the PNG
+            // if the content itself doesn't have a background.
+            // However, for transparent PNG, the elementToCapture's direct background is what matters.
+            // Forcing a specific width on tempParent can help with layout consistency.
+            tempParent.style.width = (elementToCapture.offsetWidth || 800) + 'px'; // Use offsetWidth or a default.
+            tempParent.appendChild(elementToCapture);
+            document.body.appendChild(tempParent);
 
 
             html2canvas(elementToCapture, { 
                 useCORS: true,
                 allowTaint: true,
-                backgroundColor: null, // Transparent background
+                backgroundColor: null, // For transparent background
                 scrollX: 0,
                 scrollY: 0,
-                width: elementToCapture.scrollWidth, 
-                height: elementToCapture.scrollHeight,
+                // Let html2canvas determine width and height from the elementToCapture itself
+                // This is often more reliable than trying to set it manually, especially for dynamic content.
                 logging: true 
             }).then(canvas => {
                 const dataUrl = canvas.toDataURL('image/png');
@@ -1543,8 +1543,8 @@
                     uploadStatus.style.color = 'red';
                 }
             }).finally(() => {
-                if (tempAppended && elementToCapture.parentElement === document.body) {
-                     document.body.removeChild(elementToCapture);
+                if (tempParent && tempParent.parentElement === document.body) {
+                     document.body.removeChild(tempParent);
                 }
             });
         }
