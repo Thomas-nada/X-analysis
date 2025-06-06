@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntersectMBO - Interactive Account Analytics Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.min.js"></script>
+    <style>
+        /* Base styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Light Mode (default) */
+        .light-mode {
+            background-color: #f3f4f6; 
+            color: #1f2937; 
+        }
+        .light-mode .report-section, /* Generic class for all main sections */
+        .light-mode .metric-card, 
+        .light-mode .post-card,
+        .light-mode .table-container,
+        .light-mode .upload-section {
+            background-color: #ffffff;
+            color: #1f2937;
+        }
+        .light-mode .table-header th {
+            background-color: #e5e7eb;
+            color: #374151;
+        }
+         .light-mode .section-title {
+            color: #111827; 
+            border-bottom-color: #3b82f6; 
+        }
+        .light-mode .text-main-header { color: #3b82f6; } 
+        .light-mode .text-sub-header { color: #4b5563; } 
+        .light-mode .text-muted { color: #6b7280; } 
+        .light-mode .table-container tbody tr:nth-child(even) {
+            background-color: #f9fafb; 
+        }
+        .light-mode .table-container tbody tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+        .light-mode .file-input-label {
+            background-color: #3b82f6; color: white;
+        }
+        .light-mode .file-input-label:hover {
+            background-color: #2563eb;
+        }
+        .light-mode .load-button { /* General style for load/action buttons */
+            background-color: #16a34a; color: white;
+        }
+        .light-mode .load-button:hover {
+            background-color: #15803d;
+        }
+        .light-mode .download-button { /* Specific style for download button */
+             background-color: #8b5cf6; /* Purple for download */ color: white;
+        }
+        .light-mode .download-button:hover {
+            background-color: #7c3aed;
+        }
+        .light-mode select {
+            background-color: white;
+            border-color: #d1d5db; 
+            color: #1f2937;
+        }
+
+
+        /* Dark Mode */
+        .dark-mode {
+            background-color: #1f2937; 
+            color: #f3f4f6; 
+        }
+        .dark-mode .report-section,
+        .dark-mode .metric-card,
+        .dark-mode .post-card,
+        .dark-mode .table-container,
+        .dark-mode .upload-section {
+            background-color: #374151; 
+            color: #f3f4f6;
+            border-color: #4b5563;
+        }
+        .dark-mode .table-header th {
+            background-color: #4b5563; 
+            color: #e5e7eb;
+        }
+        .dark-mode .section-title {
+            color: #d1d5db; 
+            border-bottom-color: #60a5fa; 
+        }
+        .dark-mode .text-main-header { color: #60a5fa; } 
+        .dark-mode .text-sub-header { color: #9ca3af; } 
+        .dark-mode .text-muted { color: #d1d5db; } 
+        .dark-mode .table-container tbody tr {
+            border-color: #4b5563;
+        }
+        .dark-mode .table-container tbody tr:nth-child(even) {
+            background-color: #4b5563; 
+        }
+        .dark-mode .table-container tbody tr:nth-child(odd) {
+            background-color: #374151;
+        }
+        .dark-mode .post-card:hover { 
+            border-color: #60a5fa;
+        }
+         .dark-mode .list-item::before {
+            color: #60a5fa; 
+        }
+        .dark-mode .theme-toggle-button {
+            background-color: #4b5563;
+            color: #f3f4f6;
+        }
+        .dark-mode .theme-toggle-button:hover {
+            background-color: #374151;
+        }
+        .dark-mode .file-input-label {
+            background-color: #60a5fa; color: #1f2937;
+        }
+        .dark-mode .file-input-label:hover {
+            background-color: #3b82f6;
+        }
+        .dark-mode .load-button { /* General style for load/action buttons */
+            background-color: #22c55e; color: #1f2937;
+        }
+        .dark-mode .load-button:hover {
+            background-color: #16a34a;
+        }
+         .dark-mode .download-button { /* Specific style for download button */
+            background-color: #a78bfa; /* Lighter purple for dark mode */ color: #1f2937;
+        }
+        .dark-mode .download-button:hover {
+            background-color: #8b5cf6;
+        }
+        .dark-mode select {
+            background-color: #4b5563; 
+            border-color: #6b7280; 
+            color: #f3f4f6;
+        }
+
+
+        /* Card styles */
+        .report-section, .metric-card, .post-card-wrapper, .table-container, .upload-section { 
+            border-radius: 0.75rem; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .metric-card {
+            padding: 1.5rem; 
+        }
+        .metric-card:hover, .post-card-link:hover .post-card { 
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .metric-value {
+            font-size: 2rem; /* Adjusted for potentially more cards */
+            font-weight: 700;
+        }
+        .metric-label {
+            font-size: 0.875rem; 
+        }
+        .post-card { 
+            overflow: hidden;
+            border: 2px solid transparent;
+            display: flex; 
+            flex-direction: column;
+            padding: 1.5rem; 
+            height: 100%; 
+        }
+        .post-card-link { 
+            display: block; 
+            text-decoration: none;
+             border-radius: 0.75rem; 
+        }
+        .post-card-link .post-card { 
+             transition: border-color 0.2s ease-in-out; 
+        }
+        .light-mode .post-card-link:hover .post-card {
+            border-color: #3b82f6; 
+        }
+        .dark-mode .post-card-link:hover .post-card { 
+            border-color: #60a5fa;
+        }
+        .post-card-wrapper .post-card { 
+             background-color: inherit; 
+             color: inherit;
+        }
+
+        /* Table styles */
+        .table-header th {
+            cursor: pointer;
+            position: relative;
+            padding-right: 1.5rem; 
+        }
+        .table-header th .sort-icon {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8em;
+        }
+        .table-container { /* Removed default padding, handled by .report-section */
+            overflow-x: auto;
+        }
+
+        .section-title {
+            font-size: 1.875rem; 
+            font-weight: 600;
+            margin-bottom: 1.5rem; 
+            border-bottom-width: 2px;
+            padding-bottom: 0.5rem; 
+        }
+        .list-item::before {
+            content: "✓";
+            margin-right: 0.5rem; 
+            font-weight: bold;
+        }
+        .light-mode .list-item::before { color: #3b82f6; } 
+
+        .theme-toggle-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 0.75rem;
+            border-radius: 50%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+         .light-mode .theme-toggle-button {
+            background-color: #3b82f6; 
+            color: white;
+        }
+        .light-mode .theme-toggle-button:hover {
+             background-color: #2563eb; 
+        }
+        
+        .upload-section { /* Padding already applied by .report-section */
+        }
+        .file-input-label, .action-button { /* Renamed .load-button to .action-button for general use */
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem; 
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s ease-in-out;
+            display: inline-flex; /* For icon alignment */
+            align-items: center; /* For icon alignment */
+        }
+        input[type="file"] {
+            display: none; 
+        }
+        #fileName {
+            margin-left: 1rem;
+            font-style: italic;
+        }
+        .action-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+
+        .container {
+            min-height: calc(100vh - 4rem); 
+        }
+        .placeholder-text {
+            text-align: center;
+            padding: 1rem;
+        }
+        .post-card-content {
+            flex-grow: 1; 
+        }
+        select#postSelectorDropdown {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.375rem; 
+            border-width: 1px;
+            margin-bottom: 1.5rem; 
+            cursor: pointer;
+        }
+        #individualPostDetailsContainer .detail-item {
+            padding: 0.5rem 0;
+            border-bottom-width: 1px;
+        }
+         .light-mode #individualPostDetailsContainer .detail-item {
+            border-bottom-color: #e5e7eb; 
+        }
+        .dark-mode #individualPostDetailsContainer .detail-item {
+            border-bottom-color: #4b5563; 
+        }
+        #individualPostDetailsContainer .detail-item:last-child {
+            border-bottom-width: 0;
+        }
+        #individualPostDetailsContainer .detail-label {
+            font-weight: 600;
+        }
+        #individualPostDetailsContainer .post-text-display {
+            white-space: pre-wrap; 
+            word-break: break-word;
+            max-height: 200px; 
+            overflow-y: auto;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+        }
+        .light-mode #individualPostDetailsContainer .post-text-display {
+             background-color: #f9fafb; 
+        }
+        .dark-mode #individualPostDetailsContainer .post-text-display {
+             background-color: #4b5563; 
+        }
+        .hidden-section {
+            display: none !important;
+        }
+
+    </style>
+</head>
+<body class="light-mode p-4 md:p-8">
+    <div class="container mx-auto max-w-5xl">
+
+        <button id="theme-toggle" class="theme-toggle-button" title="Toggle dark/light mode">
+            <i class="fas fa-moon"></i>
+        </button>
+
+        <header class="mb-6 text-center pt-8 md:pt-12">
+            <h1 class="text-4xl font-bold text-main-header">IntersectMBO</h1>
+            <p class="text-xl text-sub-header mt-2">Interactive Account Analytics Report</p>
+            <p id="data-period-display" class="text-sm text-muted">Upload a CSV file to view analytics.</p>
+        </header>
+
+        <!-- CSV Upload Section -->
+        <section class="upload-section report-section">
+            <h2 class="text-xl font-semibold mb-3">Upload New CSV Data</h2>
+            <div class="flex items-center mb-3">
+                <label for="csvFileInput" class="file-input-label">
+                    <i class="fas fa-file-csv mr-2"></i>Choose CSV File
+                </label>
+                <input type="file" id="csvFileInput" accept=".csv">
+                <span id="fileName" class="text-muted">No file chosen</span>
+            </div>
+            <div class="space-x-2"> <!-- Container for buttons -->
+                <button id="loadCsvButton" class="action-button load-button">
+                    <i class="fas fa-sync-alt mr-2"></i>Load and Process Data
+                </button>
+                <button id="downloadPptxButton" class="action-button download-button" disabled>
+                    <i class="fas fa-file-powerpoint mr-2"></i>Download Slide Deck
+                </button>
+            </div>
+            <p id="uploadStatus" class="text-sm mt-2"></p>
+        </section>
+
+        <!-- ====== CONTENT ANALYTICS SECTIONS (Initially hidden if overview is shown) ====== -->
+        <div id="contentAnalyticsSections">
+            <!-- Individual Post Analysis Section (Excluded from PPTX) -->
+            <section id="individual-post-analysis" class="report-section">
+                <h2 class="section-title">Individual Post Analysis</h2>
+                <select id="postSelectorDropdown" disabled>
+                    <option value="">Upload a Content CSV to select a post</option>
+                </select>
+                <div id="individualPostDetailsContainer" class="mt-4">
+                    <p class="text-muted placeholder-text">Select a post from the dropdown above to view its details.</p>
+                </div>
+            </section>
+
+            <!-- Aggregate Performance Metrics Section (For Content CSV) -->
+            <section id="aggregate-metrics-content" class="report-section">
+                <h2 class="section-title">Content Performance Metrics (Per Post Data)</h2>
+                <div class="table-container">
+                    <table id="metricsTableContent" class="min-w-full divide-y">
+                        <thead class="table-header">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" data-sort-col="0">Metric <span class="sort-icon"></span></th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" data-sort-col="1" data-sort-type="number">Total <span class="sort-icon"></span></th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" data-sort-col="2" data-sort-type="number">Average per Post <span class="sort-icon"></span></th>
+                            </tr>
+                        </thead>
+                        <tbody id="metricsTableBodyContent" class="divide-y">
+                            <tr><td colspan="3" class="px-6 py-10 text-center text-muted placeholder-text">Upload a Content CSV to view aggregate metrics.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="engagement-insights-content" class="report-section">
+                <h2 class="section-title">Content Engagement Insights</h2>
+                 <div class="grid md:grid-cols-2 gap-6">
+                    <div class="metric-card text-center">
+                        <div id="engagementRateDisplayContent" class="metric-value text-blue-600 dark:text-blue-400">N/A</div>
+                        <div class="metric-label text-muted">Overall Engagement Rate</div>
+                        <p class="text-xs text-muted mt-1">(Based on 'Engagements' column / Total Impressions)</p>
+                    </div>
+                    <div class="p-6"> 
+                        <h3 class="text-lg font-semibold mb-2">Key Engagement Drivers:</h3>
+                        <ul id="engagementDriversListContent" class="list-disc list-inside space-y-1">
+                            <li class="text-muted placeholder-text">Upload a Content CSV to view key engagement drivers.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="top-posts-content" class="report-section">
+                <h2 class="section-title">Top Performing Posts Highlights</h2>
+                <div id="topPostsContainerContent" class="grid md:grid-cols-2 gap-6">
+                     <p class="text-muted placeholder-text col-span-full">Upload a Content CSV to view top performing posts.</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- ====== ACCOUNT OVERVIEW ANALYTICS SECTION (Initially hidden) ====== -->
+        <section id="accountOverviewSection" class="report-section hidden-section">
+            <h2 class="section-title">Account Overview Analytics</h2>
+            <div id="overviewSummaryCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                 <p class="text-muted placeholder-text col-span-full">Loading overview summary...</p>
+            </div>
+            <h3 class="text-xl font-semibold mb-4">Daily Overview Data</h3>
+            <div class="table-container">
+                <table id="overviewDailyTable" class="min-w-full divide-y">
+                    <thead id="overviewDailyTableHead" class="table-header">
+                    </thead>
+                    <tbody id="overviewDailyTableBody" class="divide-y">
+                        <tr><td colspan="10" class="px-6 py-10 text-center text-muted placeholder-text">Loading daily overview data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+
+        <!-- Common Interpretive Sections -->
+        <section id="interpretive-sections-container" class="report-section">
+            <div id="interpretiveNotice" class="p-6 mb-6" style="display: none;">
+                <h3 class="text-lg font-semibold mb-2 text-amber-600 dark:text-amber-400"><i class="fas fa-exclamation-triangle mr-2"></i>Note on Uploaded Data</h3>
+                <p>The following sections (Content Themes, Key Observations, Conclusion) are based on an original sample dataset. Analysis and insights for the currently uploaded CSV would require specific interpretation of its content.</p>
+            </div>
+
+            <section id="content-themes" class="mb-12">
+                <h2 class="section-title">Key Content Themes (Sample Data Insight)</h2>
+                <div class="p-6">
+                    <ul class="space-y-2">
+                        <li class="list-item"><strong>Cardano Governance:</strong> Dominant theme focusing on elections, DRep registration, voting, GovTool, and CIP-1694.</li>
+                        <li class="list-item"><strong>Community Engagement & Updates:</strong> Calls to action, AMAs, Q&A sessions, and weekly development updates.</li>
+                    </ul>
+                </div>
+            </section>
+            <section id="key-observations" class="mb-12">
+                <h2 class="section-title">Key Observations & Potential Insights (Sample Data Insight)</h2>
+                 <div class="p-6">
+                    <ul class="space-y-2">
+                        <li class="list-item">High engagement around governance topics.</li>
+                        <li class="list-item">"New Follows" metric relatively low in sample.</li>
+                    </ul>
+                </div>
+            </section>
+            <section id="conclusion" class="mb-12">
+                <h2 class="section-title">Conclusion (Sample Data Insight)</h2>
+                <div class="p-6">
+                    <p class="leading-relaxed">
+                        The original sample data showed strong engagement, particularly around governance.
+                    </p>
+                </div>
+            </section>
+        </section>
+
+        <footer class="text-center mt-12 py-6 border-t text-muted">
+            <p class="text-sm">&copy; <span id="currentYear"></span> IntersectMBO Analytics Report.</p>
+        </footer>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        let parsedCsvData = []; 
+        let currentCsvType = null; // 'content' or 'overview'
+        let currentCsvHeaders = []; // To store headers of the loaded CSV
+
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+        const moonIcon = '<i class="fas fa-moon"></i>';
+        const sunIcon = '<i class="fas fa-sun"></i>';
+
+        function applyTheme(theme) {
+            body.classList.toggle('dark-mode', theme === 'dark');
+            body.classList.toggle('light-mode', theme !== 'dark');
+            themeToggle.innerHTML = theme === 'dark' ? sunIcon : moonIcon;
+            localStorage.setItem('theme', theme);
+        }
+        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        applyTheme(savedTheme);
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = localStorage.getItem('theme') === 'dark' ? 'light' : 'dark';
+            applyTheme(currentTheme);
+        });
+
+        const csvFileInput = document.getElementById('csvFileInput');
+        const loadCsvButton = document.getElementById('loadCsvButton');
+        const downloadPptxButton = document.getElementById('downloadPptxButton'); 
+        const fileNameDisplay = document.getElementById('fileName');
+        const uploadStatus = document.getElementById('uploadStatus');
+        const dataPeriodDisplay = document.getElementById('data-period-display');
+        const interpretiveNotice = document.getElementById('interpretiveNotice');
+
+        // Content Analytics Elements
+        const contentAnalyticsSections = document.getElementById('contentAnalyticsSections');
+        const metricsTableBodyContent = document.getElementById('metricsTableBodyContent');
+        const engagementRateDisplayContent = document.getElementById('engagementRateDisplayContent');
+        const engagementDriversListContent = document.getElementById('engagementDriversListContent');
+        const topPostsContainerContent = document.getElementById('topPostsContainerContent');
+        const postSelectorDropdown = document.getElementById('postSelectorDropdown');
+        const individualPostDetailsContainer = document.getElementById('individualPostDetailsContainer');
+        
+        // Account Overview Elements
+        const accountOverviewSection = document.getElementById('accountOverviewSection');
+        const overviewSummaryCards = document.getElementById('overviewSummaryCards');
+        const overviewDailyTableHead = document.getElementById('overviewDailyTableHead');
+        const overviewDailyTableBody = document.getElementById('overviewDailyTableBody');
+
+
+        const CONTENT_METRIC_COLUMNS = ['Impressions', 'Likes', 'Engagements', 'Bookmarks', 'Shares', 'New follows', 'Replies', 'Reposts', 'Profile visits', 'Detail Expands', 'URL Clicks', 'Hashtag Clicks', 'Permalink Clicks'];
+        const OVERVIEW_METRIC_COLUMNS = ['Impressions', 'Likes', 'Engagements', 'Bookmarks', 'Shares', 'New follows', 'Unfollows', 'Replies', 'Reposts', 'Profile visits', 'Create Post', 'Video views', 'Media views'];
+
+        const normalizeHeader = (header) => header ? header.toLowerCase().replace(/\s+/g, '') : '';
+
+        csvFileInput.addEventListener('change', () => {
+            if (csvFileInput.files.length > 0) {
+                fileNameDisplay.textContent = csvFileInput.files[0].name;
+                uploadStatus.textContent = '';
+            } else {
+                fileNameDisplay.textContent = 'No file chosen';
+            }
+        });
+
+        loadCsvButton.addEventListener('click', () => {
+            if (csvFileInput.files.length === 0) {
+                uploadStatus.textContent = 'Please choose a CSV file first.';
+                uploadStatus.style.color = 'red';
+                return;
+            }
+            const file = csvFileInput.files[0];
+            if (file.type !== 'text/csv' && !file.name.toLowerCase().endsWith('.csv')) {
+                 uploadStatus.textContent = 'Invalid file type. Please upload a .csv file.';
+                 uploadStatus.style.color = 'red';
+                 return;
+            }
+
+            uploadStatus.textContent = 'Processing...';
+            uploadStatus.style.color = 'inherit'; 
+            downloadPptxButton.disabled = true; 
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const csvData = event.target.result;
+                    parsedCsvData = parseCSV(csvData); 
+                    if (!parsedCsvData || parsedCsvData.length === 0) {
+                        throw new Error("CSV is empty or could not be parsed.");
+                    }
+                    currentCsvHeaders = Object.keys(parsedCsvData[0] || {});
+                    currentCsvType = detectCsvType(currentCsvHeaders);
+                    if (!currentCsvType) {
+                        throw new Error("Could not determine CSV type. Ensure headers are correct (e.g., 'Post id' and 'Post text' for Content, or 'Date' and 'Unfollows' for Overview).");
+                    }
+
+                    processAndDisplayData(parsedCsvData, file.name, currentCsvType);
+                    uploadStatus.textContent = `Successfully loaded and processed '${file.name}' (${currentCsvType} data).`;
+                    uploadStatus.style.color = 'green';
+                    interpretiveNotice.style.display = 'block'; 
+                    downloadPptxButton.disabled = false; 
+                } catch (error) {
+                    console.error("Error processing CSV:", error);
+                    parsedCsvData = []; 
+                    currentCsvType = null;
+                    currentCsvHeaders = [];
+                    uploadStatus.textContent = `Error: ${error.message}. Check console.`;
+                    uploadStatus.style.color = 'red';
+                    interpretiveNotice.style.display = 'none'; 
+                    resetUI(); 
+                    downloadPptxButton.disabled = true;
+                }
+            };
+            reader.onerror = function() {
+                uploadStatus.textContent = 'Error reading file.';
+                uploadStatus.style.color = 'red';
+                parsedCsvData = [];
+                currentCsvType = null;
+                currentCsvHeaders = [];
+                interpretiveNotice.style.display = 'none';
+                resetUI();
+                downloadPptxButton.disabled = true;
+            };
+            reader.readAsText(file);
+        });
+        
+        downloadPptxButton.addEventListener('click', generatePptxReport);
+
+
+        function resetUI() {
+            // Reset content analytics sections
+            metricsTableBodyContent.innerHTML = '<tr><td colspan="3" class="px-6 py-10 text-center text-muted placeholder-text">Upload a Content CSV.</td></tr>';
+            engagementRateDisplayContent.textContent = "N/A";
+            engagementDriversListContent.innerHTML = '<li class="text-muted placeholder-text">Upload a Content CSV.</li>';
+            topPostsContainerContent.innerHTML = '<p class="text-muted placeholder-text col-span-full">Upload a Content CSV.</p>';
+            postSelectorDropdown.innerHTML = '<option value="">Upload a Content CSV</option>';
+            postSelectorDropdown.disabled = true;
+            individualPostDetailsContainer.innerHTML = '<p class="text-muted placeholder-text">Upload a Content CSV.</p>';
+            contentAnalyticsSections.classList.add('hidden-section');
+
+            // Reset overview analytics sections
+            overviewSummaryCards.innerHTML = '<p class="text-muted placeholder-text col-span-full">Upload an Overview CSV.</p>';
+            overviewDailyTableHead.innerHTML = '';
+            overviewDailyTableBody.innerHTML = '<tr><td colspan="10" class="px-6 py-10 text-center text-muted placeholder-text">Upload an Overview CSV.</td></tr>';
+            accountOverviewSection.classList.add('hidden-section');
+            dataPeriodDisplay.textContent = "Upload a CSV file to view analytics.";
+            downloadPptxButton.disabled = true; 
+        }
+
+
+        function detectCsvType(headers) {
+            const normalizedHeaders = headers.map(normalizeHeader);
+            const hasPostId = normalizedHeaders.includes(normalizeHeader('Post id'));
+            const hasPostText = normalizedHeaders.includes(normalizeHeader('Post text'));
+            const hasDate = normalizedHeaders.includes(normalizeHeader('Date'));
+            const hasUnfollows = normalizedHeaders.includes(normalizeHeader('Unfollows'));
+            const hasCreatePost = normalizedHeaders.includes(normalizeHeader('Create Post'));
+
+            if (hasPostId && hasPostText) {
+                return 'content';
+            } else if (hasDate && (hasUnfollows || hasCreatePost)) { 
+                return 'overview';
+            }
+            return null; 
+        }
+
+
+        function parseCSV(csvText) { 
+            const lines = csvText.split(/\r\n|\n/).filter(line => line.trim() !== ''); 
+            if (lines.length < 2) return []; 
+
+            const rawHeaders = lines[0].split(',');
+            const headers = rawHeaders.map(h => h.trim());
+            currentCsvHeaders = headers; 
+            
+            const data = [];
+            for (let i = 1; i < lines.length; i++) {
+                const values = [];
+                let currentVal = '';
+                let inQuotes = false;
+                for (let j = 0; j < lines[i].length; j++) {
+                    const char = lines[i][j];
+                    if (char === '"') {
+                        if (inQuotes && j + 1 < lines[i].length && lines[i][j+1] === '"') {
+                            currentVal += '"';
+                            j++; 
+                            continue;
+                        }
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        values.push(currentVal.trim());
+                        currentVal = '';
+                    } else {
+                        currentVal += char;
+                    }
+                }
+                values.push(currentVal.trim());
+
+                if (values.length === headers.length) {
+                    const row = {};
+                    headers.forEach((header, index) => {
+                        let val = values[index];
+                        if (val.startsWith('"') && val.endsWith('"')) {
+                            val = val.substring(1, val.length - 1);
+                        }
+                        row[header] = val.replace(/""/g, '"');
+                    });
+                    data.push(row);
+                } else {
+                    console.warn(`Skipping malformed row ${i+1}: expected ${headers.length} values, got ${values.length}. Line: ${lines[i]}`);
+                }
+            }
+            return data;
+        }
+        
+        function processAndDisplayData(data, fileName, csvType) {
+            dataPeriodDisplay.textContent = `Data from: ${fileName}`;
+            if (csvType === 'content') {
+                contentAnalyticsSections.classList.remove('hidden-section');
+                accountOverviewSection.classList.add('hidden-section');
+                displayContentAnalytics(data);
+            } else if (csvType === 'overview') {
+                accountOverviewSection.classList.remove('hidden-section');
+                contentAnalyticsSections.classList.add('hidden-section');
+                displayOverviewAnalytics(data);
+            }
+        }
+
+        function displayContentAnalytics(data) {
+            const numPosts = data.length;
+            const headers = currentCsvHeaders;
+
+            const totals = {};
+            CONTENT_METRIC_COLUMNS.forEach(col => totals[col] = 0);
+            data.forEach(row => {
+                CONTENT_METRIC_COLUMNS.forEach(colName => {
+                    let actualColName = headers.find(h => normalizeHeader(h) === normalizeHeader(colName));
+                    if(actualColName){
+                        const val = parseFloat(String(row[actualColName] || '0').replace(/,/g, '')); 
+                        if (!isNaN(val)) totals[colName] += val;
+                    }
+                });
+            });
+
+            metricsTableBodyContent.innerHTML = ''; 
+            const newRowPosts = document.createElement('tr');
+            newRowPosts.innerHTML = `<td class="px-6 py-4 whitespace-nowrap font-medium">Posts Analyzed</td><td class="px-6 py-4 whitespace-nowrap">${numPosts.toLocaleString()}</td><td class="px-6 py-4 whitespace-nowrap">-</td>`;
+            metricsTableBodyContent.appendChild(newRowPosts);
+            CONTENT_METRIC_COLUMNS.forEach(colName => {
+                const total = totals[colName] || 0;
+                const average = numPosts > 0 ? (total / numPosts).toFixed(2) : '0.00';
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">${colName}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${total.toLocaleString()}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${average}</td>`;
+                metricsTableBodyContent.appendChild(row);
+            });
+            initializeTableSorting(document.getElementById('metricsTableContent'));
+
+            const totalImpressions = totals['Impressions'] || 0;
+            const totalEngagements = totals['Engagements'] || 0;
+            engagementRateDisplayContent.textContent = totalImpressions > 0 ? ((totalEngagements / totalImpressions) * 100).toFixed(2) + '%' : 'N/A';
+            engagementDriversListContent.innerHTML = `
+                <li>Likes: ${(totals['Likes'] || 0).toLocaleString()}</li>
+                <li>Reposts: ${(totals['Reposts'] || 0).toLocaleString()}</li>
+                <li>Detail Expands: ${(totals['Detail Expands'] || 0).toLocaleString()}</li>`;
+
+            topPostsContainerContent.innerHTML = ''; 
+            const topPostMetricsContent = [
+                { name: 'Engagements', title: 'Top Post by Engagements' },
+                { name: 'Impressions', title: 'Top Post by Impressions' },
+                { name: 'Likes', title: 'Top Post by Likes' },
+                { name: 'Reposts', title: 'Top Post by Reposts' }
+            ];
+            if (numPosts === 0) {
+                 topPostsContainerContent.innerHTML = `<p class="text-muted placeholder-text col-span-full">No data to determine top posts.</p>`;
+            } else {
+                topPostMetricsContent.forEach(metricInfo => {
+                    const metricHeaderKey = headers.find(h => normalizeHeader(h) === normalizeHeader(metricInfo.name));
+                    const topPostData = findTopPost(data, metricHeaderKey, headers); 
+                    const card = createPostCard(topPostData, metricInfo.title, metricInfo.name, topPostData ? topPostData.value : 0, headers); 
+                    topPostsContainerContent.appendChild(card);
+                });
+            }
+            populatePostSelectorDropdown(data);
+        }
+        
+        function displayOverviewAnalytics(data) {
+            const numDays = data.length;
+            const headers = currentCsvHeaders;
+
+            const overviewTotals = {};
+            OVERVIEW_METRIC_COLUMNS.forEach(col => overviewTotals[col] = 0);
+            let totalNewFollows = 0;
+            let totalUnfollows = 0;
+
+            data.forEach(dayData => {
+                OVERVIEW_METRIC_COLUMNS.forEach(colName => {
+                    let actualColName = headers.find(h => normalizeHeader(h) === normalizeHeader(colName));
+                    if(actualColName) {
+                        const val = parseFloat(String(dayData[actualColName] || '0').replace(/,/g, ''));
+                        if (!isNaN(val)) {
+                            overviewTotals[colName] += val;
+                            if (normalizeHeader(colName) === 'newfollows') totalNewFollows += val;
+                            if (normalizeHeader(colName) === 'unfollows') totalUnfollows += val;
+                        }
+                    }
+                });
+            });
+            
+            const netFollowerGrowth = totalNewFollows - totalUnfollows;
+
+            overviewSummaryCards.innerHTML = `
+                ${createOverviewMetricCard('Total Impressions', (overviewTotals['Impressions'] || 0).toLocaleString())}
+                ${createOverviewMetricCard('Total Engagements', (overviewTotals['Engagements'] || 0).toLocaleString())}
+                ${createOverviewMetricCard('Net Follower Growth', netFollowerGrowth.toLocaleString(), netFollowerGrowth >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400')}
+                ${createOverviewMetricCard('Total Posts Created', (overviewTotals['Create Post'] || 0).toLocaleString())}
+                ${createOverviewMetricCard('Avg Daily Impressions', numDays > 0 ? ((overviewTotals['Impressions'] || 0) / numDays).toFixed(0).toLocaleString() : 'N/A')}
+                ${createOverviewMetricCard('Avg Daily Profile Visits', numDays > 0 ? ((overviewTotals['Profile visits'] || 0) / numDays).toFixed(0).toLocaleString() : 'N/A')}
+                ${createOverviewMetricCard('Total Video Views', (overviewTotals['Video views'] || 0).toLocaleString())}
+                ${createOverviewMetricCard('Total Media Views', (overviewTotals['Media views'] || 0).toLocaleString())}
+            `;
+
+            overviewDailyTableHead.innerHTML = ''; 
+            const headerRow = document.createElement('tr');
+            headers.forEach(headerText => {
+                const th = document.createElement('th');
+                th.className = "px-6 py-3 text-left text-xs font-medium uppercase tracking-wider";
+                th.textContent = headerText;
+                th.dataset.sortCol = headers.indexOf(headerText);
+                if (headerText.toLowerCase() !== 'date') { 
+                     th.dataset.sortType = 'number';
+                }
+                th.innerHTML += ' <span class="sort-icon"></span>';
+                headerRow.appendChild(th);
+            });
+            overviewDailyTableHead.appendChild(headerRow);
+            
+            overviewDailyTableBody.innerHTML = '';
+            if (numDays === 0) {
+                overviewDailyTableBody.innerHTML = `<tr><td colspan="${headers.length}" class="px-6 py-10 text-center text-muted">No daily data available.</td></tr>`;
+            } else {
+                data.forEach(dayData => {
+                    const row = document.createElement('tr');
+                    headers.forEach(header => {
+                        const td = document.createElement('td');
+                        td.className = "px-6 py-4 whitespace-nowrap";
+                        let value = dayData[header] || '0';
+                        if(header.toLowerCase() !== 'date' && !isNaN(parseFloat(value.replace(/,/g,'')))) {
+                            value = parseFloat(value.replace(/,/g,'')).toLocaleString();
+                        }
+                        td.textContent = value;
+                        row.appendChild(td);
+                    });
+                    overviewDailyTableBody.appendChild(row);
+                });
+            }
+            initializeTableSorting(document.getElementById('overviewDailyTable'));
+        }
+
+        function createOverviewMetricCard(label, value, valueColorClass = '') {
+            const currentTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
+            const valueBaseColorClass = currentTheme === 'dark' ? 'text-blue-400' : 'text-blue-600';
+            return `
+                <div class="metric-card text-center">
+                    <div class="metric-value ${valueColorClass || valueBaseColorClass}">${value}</div>
+                    <div class="metric-label text-muted">${label}</div>
+                </div>`;
+        }
+        
+        function findTopPost(data, metricHeaderKey, allHeaders) {
+            if (!metricHeaderKey || data.length === 0) return null;
+            let topPost = null; 
+            let maxMetricValue = -Infinity;
+            data.forEach(post => {
+                 if (post.hasOwnProperty(metricHeaderKey)) { 
+                    const metricValue = parseFloat(String(post[metricHeaderKey] || '0').replace(/,/g, ''));
+                    if (!isNaN(metricValue) && metricValue > maxMetricValue) {
+                        maxMetricValue = metricValue;
+                        topPost = post;
+                    }
+                }
+            });
+            if (!topPost && data.length > 0 && data[0].hasOwnProperty(metricHeaderKey)) {
+                const firstVal = parseFloat(String(data[0][metricHeaderKey] || '0').replace(/,/g, ''));
+                return {post: data[0], value: isNaN(firstVal) ? 0 : firstVal};
+            } else if (!topPost){ return null; }
+            return { post: topPost, value: maxMetricValue };
+        }
+
+        function createPostCard(postData, title, metricName, metricValue, allHeaders) {
+            const cardWrapper = document.createElement('div'); 
+            cardWrapper.className = 'post-card-wrapper'; 
+            const cardContentDiv = document.createElement('div');
+            cardContentDiv.className = 'post-card'; 
+
+            if (!postData || !postData.post) {
+                cardContentDiv.innerHTML = `
+                    <h4 class="font-semibold text-blue-600 dark:text-blue-400 mb-2">${title}</h4>
+                    <p class="text-sm text-muted italic">Data for this metric is not available or column not found in CSV.</p>
+                `;
+                cardWrapper.appendChild(cardContentDiv);
+                return cardWrapper;
+            }
+
+            const { post } = postData;
+            const postIdColHeaderKey = allHeaders.find(h => normalizeHeader(h) === normalizeHeader('Post id')) || allHeaders.find(h => normalizeHeader(h) === normalizeHeader('ID'));
+            const postTextColHeaderKey = allHeaders.find(h => normalizeHeader(h) === normalizeHeader('Post text')) || allHeaders.find(h => normalizeHeader(h) === normalizeHeader('Text'));
+            const impressionsColHeaderKey = allHeaders.find(h => normalizeHeader(h) === normalizeHeader('Impressions'));
+            const engagementsColHeaderKey = allHeaders.find(h => normalizeHeader(h) === normalizeHeader('Engagements'));
+            const postLinkColHeaderKey = allHeaders.find(h => normalizeHeader(h) === normalizeHeader('Post Link')) || allHeaders.find(h => normalizeHeader(h) === normalizeHeader('Link'));
+
+            let postText = post[postTextColHeaderKey] || 'No text available';
+            if (postText.length > 120) postText = postText.substring(0, 120) + '...';
+
+            const displayMetricValue = (isNaN(metricValue) || metricValue === -Infinity) ? 'N/A' : metricValue.toLocaleString();
+            const impressionsForContext = post[impressionsColHeaderKey] ? parseFloat(String(post[impressionsColHeaderKey] || '0').replace(/,/g, '')) : 'N/A';
+            const engagementsForContext = post[engagementsColHeaderKey] ? parseFloat(String(post[engagementsColHeaderKey] || '0').replace(/,/g, '')) : 'N/A';
+            const postUrl = post[postLinkColHeaderKey];
+
+            cardContentDiv.innerHTML = `
+                <div class="post-card-content">
+                    <p class="text-xs text-muted mb-1">Post ID: ${post[postIdColHeaderKey] || 'N/A'}</p>
+                    <h4 class="font-semibold text-blue-600 dark:text-blue-400 mb-2">${title}</h4>
+                    <p class="text-sm mb-3 leading-relaxed">${postText}</p>
+                </div>
+                <div class="mt-auto"> 
+                    <p class="text-sm font-medium text-purple-600 dark:text-purple-400 mb-1">${metricName}: ${displayMetricValue}</p>
+                    ${metricName !== 'Impressions' && impressionsForContext !== 'N/A' ? `<p class="text-xs text-green-600 dark:text-green-400">Impressions: ${impressionsForContext.toLocaleString()}</p>` : ''}
+                    ${metricName !== 'Engagements' && engagementsForContext !== 'N/A' ? `<p class="text-xs text-red-500 dark:text-red-400">Engagements: ${engagementsForContext.toLocaleString()}</p>` : ''}
+                </div>
+            `;
+            
+            if (postUrl && (String(postUrl).startsWith('http://') || String(postUrl).startsWith('https://'))) {
+                const linkElement = document.createElement('a');
+                linkElement.href = postUrl;
+                linkElement.target = '_blank';
+                linkElement.rel = 'noopener noreferrer';
+                linkElement.className = 'post-card-link'; 
+                linkElement.appendChild(cardContentDiv); 
+                cardWrapper.appendChild(linkElement); 
+                cardWrapper.style.cursor = 'pointer'; 
+            } else {
+                cardWrapper.appendChild(cardContentDiv); 
+            }
+            return cardWrapper;
+        }
+        
+        function populatePostSelectorDropdown(data) {
+            postSelectorDropdown.innerHTML = ''; 
+            postSelectorDropdown.disabled = data.length === 0;
+
+            if (data.length === 0) {
+                postSelectorDropdown.innerHTML = '<option value="">No posts to display</option>';
+                individualPostDetailsContainer.innerHTML = '<p class="text-muted placeholder-text">Upload a Content CSV.</p>';
+                return;
+            }
+            
+            const defaultOption = document.createElement('option');
+            defaultOption.value = "";
+            defaultOption.textContent = "Select a post to view details...";
+            postSelectorDropdown.appendChild(defaultOption);
+
+            const headers = currentCsvHeaders;
+            const postIdKey = headers.find(h => normalizeHeader(h) === normalizeHeader('Post id')) || headers.find(h => normalizeHeader(h) === normalizeHeader('ID'));
+            const postTextKey = headers.find(h => normalizeHeader(h) === normalizeHeader('Post text')) || headers.find(h => normalizeHeader(h) === normalizeHeader('Text'));
+
+            data.forEach((post, index) => {
+                const idValue = post[postIdKey];
+                const textValue = post[postTextKey];
+                if ((!idValue || String(idValue).trim() === '') && (!textValue || String(textValue).trim() === '')) return; 
+
+                const option = document.createElement('option');
+                option.value = index; 
+                let displayText = "";
+                if (textValue && String(textValue).trim() !== '') {
+                    displayText = `${String(textValue).substring(0, 80)}...`;
+                } else if (idValue && String(idValue).trim() !== '') {
+                     displayText = `ID: ${idValue}`; 
+                } else { displayText = `Unnamed Post (Row ${index + 2})`; }
+                option.textContent = displayText;
+                postSelectorDropdown.appendChild(option);
+            });
+            if (postSelectorDropdown.options.length <= 1) { 
+                 postSelectorDropdown.options[0].textContent = "No identifiable posts found";
+                 postSelectorDropdown.disabled = true;
+            }
+            individualPostDetailsContainer.innerHTML = '<p class="text-muted placeholder-text">Select a post to view details.</p>';
+        }
+
+        postSelectorDropdown.addEventListener('change', function() { 
+            const selectedIndex = this.value;
+            individualPostDetailsContainer.innerHTML = ''; 
+            if (selectedIndex === "" || !parsedCsvData || parsedCsvData.length === 0 || currentCsvType !== 'content') {
+                individualPostDetailsContainer.innerHTML = '<p class="text-muted placeholder-text">Select a post to view details.</p>';
+                return;
+            }
+            const post = parsedCsvData[parseInt(selectedIndex)];
+            if (!post) {
+                individualPostDetailsContainer.innerHTML = '<p class="text-red-500 placeholder-text">Error: Could not retrieve post details.</p>';
+                return;
+            }
+            const detailsHtml = [];
+            const headers = Object.keys(post);
+            const postLinkColHeaderKey = headers.find(h => normalizeHeader(h) === normalizeHeader('Post Link')) || headers.find(h => normalizeHeader(h) === normalizeHeader('Link'));
+            headers.forEach(header => {
+                let value = post[header];
+                let displayItem = `<span class="detail-label">${header}:</span> <span>${value || 'N/A'}</span>`;
+                if (header === postLinkColHeaderKey && (String(value).startsWith('http://') || String(value).startsWith('https://'))) {
+                    displayItem = `<span class="detail-label">${header}:</span> <a href="${value}" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline">${value}</a>`;
+                } else if (normalizeHeader(header) === normalizeHeader('Post text') || normalizeHeader(header) === normalizeHeader('Text')) {
+                    displayItem = `<div class="detail-label">${header}:</div><div class="post-text-display">${value || 'N/A'}</div>`;
+                } else { value = value || 'N/A'; displayItem = `<span class="detail-label">${header}:</span> <span>${value}</span>`; }
+                detailsHtml.push(`<div class="detail-item">${displayItem}</div>`);
+            });
+            individualPostDetailsContainer.innerHTML = detailsHtml.join('');
+        });
+
+        function initializeTableSorting(tableElement) {
+            if (!tableElement) return;
+            const oldThead = tableElement.querySelector('thead');
+            if (!oldThead) return; 
+            const newThead = oldThead.cloneNode(true); 
+            oldThead.parentNode.replaceChild(newThead, oldThead); 
+
+            const headersToSort = newThead.querySelectorAll('th[data-sort-col]'); 
+            const tbody = tableElement.querySelector('tbody'); 
+            if (!tbody) return; 
+
+            headersToSort.forEach(header => {
+                header.addEventListener('click', () => { 
+                    const columnIndex = parseInt(header.dataset.sortCol);
+                    const sortType = header.dataset.sortType || 'string'; 
+                    const currentSortOrder = header.dataset.sortOrder || 'asc'; 
+                    const newSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+                    
+                    headersToSort.forEach(h => { 
+                        const hIcon = h.querySelector('.sort-icon');
+                        if (h !== header && hIcon) { 
+                            hIcon.innerHTML = '';
+                            delete h.dataset.sortOrder;
+                        }
+                    });
+
+                    const iconElement = header.querySelector('.sort-icon');
+                    if (iconElement) { 
+                       iconElement.innerHTML = newSortOrder === 'asc' ? '<i class="fas fa-arrow-up"></i>' : '<i class="fas fa-arrow-down"></i>';
+                    }
+                    header.dataset.sortOrder = newSortOrder;
+
+                    const rows = Array.from(tbody.querySelectorAll('tr'));
+                    if(rows.length > 0 && rows[0].cells.length <= columnIndex) return;
+                    
+                    rows.sort((rowA, rowB) => {
+                        if(rowA.cells.length <= columnIndex || rowB.cells.length <= columnIndex) return 0; 
+                        let valA = rowA.cells[columnIndex].textContent.trim();
+                        let valB = rowB.cells[columnIndex].textContent.trim();
+                        if (valA === '-' || valB === '-') {
+                            if (newSortOrder === 'asc') return valA === '-' ? -1 : (valB === '-' ? 1: 0);
+                            else return valA === '-' ? 1 : (valB === '-' ? -1: 0);
+                        }
+                        if (sortType === 'number') {
+                            valA = parseFloat(valA.replace(/,/g, ''));
+                            valB = parseFloat(valB.replace(/,/g, ''));
+                            if (isNaN(valA) && isNaN(valB)) return 0;
+                            if (isNaN(valA)) return newSortOrder === 'asc' ? -1 : 1;
+                            if (isNaN(valB)) return newSortOrder === 'asc' ? 1 : -1;
+                        }
+                        let comparison = 0;
+                        if (valA > valB) comparison = 1;
+                        else if (valA < valB) comparison = -1;
+                        return newSortOrder === 'asc' ? comparison : comparison * -1;
+                    });
+                    rows.forEach(row => tbody.appendChild(row));
+                });
+            });
+        }
+        
+        // --- PPTX Generation Functions ---
+        function isValidDate(d) {
+            return d instanceof Date && !isNaN(d);
+        }
+
+        function extractDateRange() {
+            if (!parsedCsvData || parsedCsvData.length === 0) return "N/A";
+
+            let dates = [];
+            let dateHeader = null;
+            const headersToSearch = currentCsvHeaders || Object.keys(parsedCsvData[0] || {});
+
+
+            if (currentCsvType === 'overview') {
+                dateHeader = headersToSearch.find(h => normalizeHeader(h) === 'date');
+            } else if (currentCsvType === 'content') {
+                const possibleDateHeaders = ['date', 'time', 'timestamp', 'createdat', 'publishedat', 'postdate', 'datecreated', 'postedat'];
+                for (const pHeader of possibleDateHeaders) {
+                    const foundHeader = headersToSearch.find(h => normalizeHeader(h) === pHeader);
+                    if (foundHeader) {
+                        dateHeader = foundHeader;
+                        break;
+                    }
+                }
+            }
+
+            if (dateHeader) {
+                parsedCsvData.forEach(row => {
+                    if (row[dateHeader]) {
+                        let dateStr = row[dateHeader];
+                        if (typeof dateStr === 'string' && dateStr.includes(' +')) { 
+                            dateStr = dateStr.substring(0, dateStr.indexOf(' +')).trim();
+                        }
+                        const d = new Date(dateStr);
+                        if (isValidDate(d)) {
+                            dates.push(d);
+                        } else {
+                            const parts = dateStr.replace(/,/g, '').split(' ');
+                            if (parts.length === 3) {
+                                const reorderedDateStr = `${parts[1]} ${parts[0]} ${parts[2]}`; 
+                                const dAlt = new Date(reorderedDateStr);
+                                if (isValidDate(dAlt)) dates.push(dAlt);
+                            }
+                        }
+                    }
+                });
+            }
+
+            if (dates.length > 0) {
+                dates.sort((a, b) => a - b);
+                const options = { year: 'numeric', month: 'short', day: 'numeric' };
+                const minDate = dates[0].toLocaleDateString(undefined, options);
+                const maxDate = dates[dates.length - 1].toLocaleDateString(undefined, options);
+                return `${minDate} to ${maxDate}`;
+            }
+            const file = csvFileInput.files.length > 0 ? csvFileInput.files[0].name : "Loaded Data";
+            return `Report for ${file}`; 
+        }
+
+        function addSectionSlide(pptx, titleText, explainerText, contentCallback) {
+            let slide = pptx.addSlide();
+            slide.addText(titleText, { 
+                x: 0.5, y: 0.3, w: '90%', h: 0.5, 
+                fontSize: 24, bold: true, color: '363636', align: pptx.AlignH.left 
+            });
+            slide.addText(explainerText, { 
+                x: 0.5, y: 0.9, w: '90%', h: 0.4, 
+                fontSize: 11, italic: true, color: '7F7F7F', align: pptx.AlignH.left 
+            });
+            if (contentCallback) {
+                contentCallback(slide, pptx); 
+            }
+        }
+
+
+        function generatePptxReport() {
+            if (!parsedCsvData || parsedCsvData.length === 0 || typeof PptxGenJS === 'undefined') {
+                // MODIFIED: Replaced alert with status message
+                uploadStatus.textContent = "No data loaded or PPTX library not found. Please load a CSV first.";
+                uploadStatus.style.color = 'red';
+                return;
+            }
+
+            let pptx = new PptxGenJS();
+            pptx.layout = 'LAYOUT_16X9'; 
+
+            const dateRangeStr = extractDateRange();
+
+            // Slide 1: Title Page
+            let titleSlide = pptx.addSlide();
+            titleSlide.background = { color: "F1F1F1" };
+            titleSlide.addText(`@IntersectMBO Report`, { 
+                x: 0.5, y: 2.0, w: '90%', h: 1, 
+                fontSize: 44, bold: true, color: '0077C8', align: pptx.AlignH.center 
+            });
+            titleSlide.addText(dateRangeStr, { 
+                x: 0.5, y: 3.0, w: '90%', h: 0.75, 
+                fontSize: 28, color: '363636', align: pptx.AlignH.center 
+            });
+             titleSlide.addText(`Generated: ${new Date().toLocaleDateString()}`, { 
+                x: 0.5, y: 6.5, w: '90%', h: 0.5, 
+                fontSize: 10, color: '7F7F7F', align: pptx.AlignH.right 
+            });
+
+
+            if (currentCsvType === 'content') {
+                if (metricsTableBodyContent.querySelectorAll('tr').length > 1) { 
+                    addSectionSlide(pptx, "Content Performance Metrics", 
+                        "This slide summarizes the overall performance of your posts, showing total and average values for key metrics.",
+                        (slide, pptxInstance) => {
+                            let tableData = [];
+                            const headerCells = Array.from(document.getElementById('metricsTableContent').querySelectorAll('thead th')).map(th => th.textContent.replace('Total', 'Total ').replace('Average per Post', 'Avg. /Post').trim());
+                            tableData.push(headerCells.map(header => ({ text: header, options: { bold: true, fill: 'E5E7EB', color: '374151' } })));
+
+                            metricsTableBodyContent.querySelectorAll('tr').forEach(row => {
+                                const cells = Array.from(row.querySelectorAll('td')).map(td => td.textContent.trim());
+                                if (cells.length === headerCells.length) tableData.push(cells);
+                            });
+                            if (tableData.length > 1) {
+                                slide.addTable(tableData, { 
+                                    x: 0.5, y: 1.5, w: 9, autoPage: true, rowH: 0.3,
+                                    colW: [4, 2.5, 2.5], 
+                                    border: { type: 'solid', pt: 1, color: 'D1D5DB' },
+                                    fontFace: "Arial", fontSize: 10, valign: 'middle', align: pptxInstance.AlignH.left
+                                });
+                            }
+                        }
+                    );
+                }
+
+                if (engagementRateDisplayContent.textContent !== 'N/A') {
+                     addSectionSlide(pptx, "Content Engagement Insights",
+                        "Highlights the overall engagement rate and lists primary drivers of user interaction.",
+                        (slide, pptxInstance) => {
+                            slide.addText(`Overall Engagement Rate: ${engagementRateDisplayContent.textContent}`, { 
+                                x: 0.5, y: 1.5, w: '90%', h: 0.5, fontSize: 16, bold: true 
+                            });
+                            let driversText = "Key Engagement Drivers:\n";
+                            engagementDriversListContent.querySelectorAll('li').forEach(li => {
+                                if (!li.classList.contains('placeholder-text')) driversText += `• ${li.textContent}\n`;
+                            });
+                            slide.addText(driversText, { x: 0.5, y: 2.2, w: '90%', h: 2, fontSize: 12, lineSpacing: 20 });
+                        }
+                    );
+                }
+
+                if (topPostsContainerContent.querySelector('.post-card-wrapper')) { 
+                    addSectionSlide(pptx, "Top Performing Posts Highlights",
+                        "Showcases your best-performing posts based on various metrics, indicating what resonates most with your audience.",
+                        (slide, pptxInstance) => {
+                            let yPos = 1.5;
+                            const postCards = topPostsContainerContent.querySelectorAll('.post-card-wrapper');
+                            postCards.forEach((cardWrapper, index) => {
+                                if (index >= 4) return; 
+                                const card = cardWrapper.querySelector('.post-card');
+                                if (card) {
+                                    const title = card.querySelector('h4') ? card.querySelector('h4').textContent : "Top Post";
+                                    const postText = card.querySelector('.leading-relaxed') ? card.querySelector('.leading-relaxed').textContent : "N/A";
+                                    const metricText = card.querySelector('.text-purple-600, .text-purple-400') ? card.querySelector('.text-purple-600, .text-purple-400').textContent : "";
+                                    
+                                    slide.addText(`${title} (${metricText})`, { x: 0.5, y: yPos, w:'90%', h:0.3, fontSize: 12, bold:true});
+                                    yPos += 0.35;
+                                    slide.addText(postText.substring(0,250) + (postText.length > 250 ? '...' : ''), { x:0.7, y:yPos, w:'85%', h:0.6, fontSize:10 });
+                                    yPos += 0.7;
+                                    if(yPos > 5) return; 
+                                }
+                            });
+                        }
+                    );
+                }
+            } else if (currentCsvType === 'overview') {
+                if (overviewSummaryCards.querySelector('.metric-card')) {
+                    addSectionSlide(pptx, "Account Overview Analytics",
+                        "Provides a high-level view of account performance, including key summary metrics. Daily data table is available in the web view.",
+                        (slide, pptxInstance) => {
+                            let yPos = 1.5;
+                            const cards = overviewSummaryCards.querySelectorAll('.metric-card');
+                            cards.forEach((card, idx) => {
+                                if (idx >= 6) return; 
+                                const label = card.querySelector('.metric-label').textContent;
+                                const value = card.querySelector('.metric-value').textContent;
+                                slide.addText(`• ${label}: ${value}`, {x:0.5, y:yPos, w: '90%', h: 0.3, fontSize: 12});
+                                yPos += 0.4;
+                            });
+                            slide.addText("Detailed daily data is available in the main report table.", {x:0.5, y: yPos + 0.5, w:'90%', h:0.3, fontSize:10, italic:true});
+                        }
+                    );
+                }
+            }
+
+
+            const interpretiveSections = [
+                { id: 'content-themes', title: "Key Content Themes (Sample Data Insight)", explainer: "This slide outlines major content themes observed in the sample data, offering a baseline for content pillars." },
+                { id: 'key-observations', title: "Key Observations & Potential Insights (Sample Data Insight)", explainer: "Based on sample data, this highlights significant observations that could inform content strategy." },
+                { id: 'conclusion', title: "Conclusion (Sample Data Insight)", explainer: "Offers a concluding summary based on the analysis of sample data, summarizing performance and key takeaways." }
+            ];
+
+            interpretiveSections.forEach(sectionInfo => {
+                const sectionElement = document.getElementById(sectionInfo.id);
+                if (sectionElement) {
+                    addSectionSlide(pptx, sectionInfo.title, sectionInfo.explainer, (slide, pptxInstance) => {
+                        const listItems = sectionElement.querySelectorAll('ul li');
+                        const paragraph = sectionElement.querySelector('p');
+                        let contentText = "";
+                        if (listItems.length > 0) {
+                            listItems.forEach(li => contentText += `• ${li.textContent.trim()}\n`);
+                        } else if (paragraph) {
+                            contentText = paragraph.textContent.trim();
+                        }
+                        slide.addText(contentText, { x: 0.5, y: 1.5, w: '90%', h: 4, fontSize: 12, lineSpacing: 20 });
+                    });
+                }
+            });
+            
+            const filename = `IntersectMBO_Report_${new Date().toISOString().slice(0,10).replace(/-/g,'')}.pptx`;
+            pptx.writeFile({ fileName: filename });
+        }
+
+        // Initial calls to setup
+        resetUI(); 
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+    });
+    </script>
+</body>
+</html>
