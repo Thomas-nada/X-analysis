@@ -6,8 +6,8 @@
     <title>IntersectMBO - Interactive Account Analytics Report</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.min.js"
-            onerror="console.error('CRITICAL ERROR: Failed to load PptxGenJS script. PowerPoint generation will not work. Check network, CDN (cdnjs.cloudflare.com), or browser/sandbox script restrictions.'); if(document.getElementById('uploadStatus')) { document.getElementById('uploadStatus').textContent = 'Error: Failed to load PowerPoint library. Please check internet or script blockers.'; document.getElementById('uploadStatus').style.color = 'red'; }">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+            onerror="console.error('CRITICAL ERROR: Failed to load html2canvas script. PNG generation will not work.'); if(document.getElementById('uploadStatus')) { document.getElementById('uploadStatus').textContent = 'Error: Failed to load image capture library.'; document.getElementById('uploadStatus').style.color = 'red'; }">
     </script>
     <style>
         /* Base styles */
@@ -21,7 +21,7 @@
             background-color: #f3f4f6; 
             color: #1f2937; 
         }
-        .light-mode .report-section, /* Generic class for all main sections */
+        .light-mode .report-section, 
         .light-mode .metric-card, 
         .light-mode .post-card,
         .light-mode .table-container,
@@ -33,7 +33,7 @@
             background-color: #e5e7eb;
             color: #374151;
         }
-         .light-mode .section-title {
+         .light-mode .section-title-wrapper .section-title { /* Adjusted for button alignment */
             color: #111827; 
             border-bottom-color: #3b82f6; 
         }
@@ -52,17 +52,23 @@
         .light-mode .file-input-label:hover {
             background-color: #2563eb;
         }
-        .light-mode .load-button { /* General style for load/action buttons */
+        .light-mode .load-button { 
             background-color: #16a34a; color: white;
         }
         .light-mode .load-button:hover {
             background-color: #15803d;
         }
-        .light-mode .download-button { /* Specific style for download button */
-             background-color: #8b5cf6; /* Purple for download */ color: white;
+        .light-mode .slideshow-button { 
+             background-color: #d97706; color: white; /* Amber color */
         }
-        .light-mode .download-button:hover {
-            background-color: #7c3aed;
+        .light-mode .slideshow-button:hover {
+            background-color: #b45309;
+        }
+        .light-mode .download-png-button {
+            background-color: #4f46e5; color: white; /* Indigo for PNG download */
+        }
+        .light-mode .download-png-button:hover {
+            background-color: #4338ca;
         }
         .light-mode select {
             background-color: white;
@@ -89,7 +95,7 @@
             background-color: #4b5563; 
             color: #e5e7eb;
         }
-        .dark-mode .section-title {
+        .dark-mode .section-title-wrapper .section-title { /* Adjusted for button alignment */
             color: #d1d5db; 
             border-bottom-color: #60a5fa; 
         }
@@ -124,24 +130,29 @@
         .dark-mode .file-input-label:hover {
             background-color: #3b82f6;
         }
-        .dark-mode .load-button { /* General style for load/action buttons */
+        .dark-mode .load-button { 
             background-color: #22c55e; color: #1f2937;
         }
         .dark-mode .load-button:hover {
             background-color: #16a34a;
         }
-         .dark-mode .download-button { /* Specific style for download button */
-            background-color: #a78bfa; /* Lighter purple for dark mode */ color: #1f2937;
+        .dark-mode .slideshow-button { 
+             background-color: #f59e0b; color: #1f2937; /* Amber color */
         }
-        .dark-mode .download-button:hover {
-            background-color: #8b5cf6;
+        .dark-mode .slideshow-button:hover {
+            background-color: #d97706;
+        }
+        .dark-mode .download-png-button {
+            background-color: #6366f1; color: #e0e7ff; /* Lighter Indigo for dark mode */
+        }
+        .dark-mode .download-png-button:hover {
+            background-color: #4f46e5;
         }
         .dark-mode select {
             background-color: #4b5563; 
             border-color: #6b7280; 
             color: #f3f4f6;
         }
-
 
         /* Card styles */
         .report-section, .metric-card, .post-card-wrapper, .table-container, .upload-section { 
@@ -151,323 +162,345 @@
             padding: 1.5rem;
             margin-bottom: 2rem;
         }
-        .metric-card {
-            padding: 1.5rem; 
-        }
+        .metric-card { padding: 1.5rem; }
         .metric-card:hover, .post-card-link:hover .post-card { 
             transform: translateY(-5px);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
-        .metric-value {
-            font-size: 2rem; /* Adjusted for potentially more cards */
-            font-weight: 700;
-        }
-        .metric-label {
-            font-size: 0.875rem; 
-        }
+        .metric-value { font-size: 2rem; font-weight: 700; }
+        .metric-label { font-size: 0.875rem; }
         .post-card { 
-            overflow: hidden;
-            border: 2px solid transparent;
-            display: flex; 
-            flex-direction: column;
-            padding: 1.5rem; 
-            height: 100%; 
+            overflow: hidden; border: 2px solid transparent; display: flex; 
+            flex-direction: column; padding: 1.5rem; height: 100%; 
         }
-        .post-card-link { 
-            display: block; 
-            text-decoration: none;
-             border-radius: 0.75rem; 
-        }
-        .post-card-link .post-card { 
-             transition: border-color 0.2s ease-in-out; 
-        }
-        .light-mode .post-card-link:hover .post-card {
-            border-color: #3b82f6; 
-        }
-        .dark-mode .post-card-link:hover .post-card { 
-            border-color: #60a5fa;
-        }
-        .post-card-wrapper .post-card { 
-             background-color: inherit; 
-             color: inherit;
-        }
+        .post-card-link { display: block; text-decoration: none; border-radius: 0.75rem; }
+        .post-card-link .post-card { transition: border-color 0.2s ease-in-out; }
+        .light-mode .post-card-link:hover .post-card { border-color: #3b82f6; }
+        .dark-mode .post-card-link:hover .post-card { border-color: #60a5fa; }
+        .post-card-wrapper .post-card { background-color: inherit; color: inherit;}
 
         /* Table styles */
-        .table-header th {
-            cursor: pointer;
-            position: relative;
-            padding-right: 1.5rem; 
-        }
-        .table-header th .sort-icon {
-            position: absolute;
-            right: 0.5rem;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 0.8em;
-        }
-        .table-container { /* Removed default padding, handled by .report-section */
-            overflow-x: auto;
-        }
-
-        .section-title {
-            font-size: 1.875rem; 
-            font-weight: 600;
+        .table-header th { cursor: pointer; position: relative; padding-right: 1.5rem; }
+        .table-header th .sort-icon { position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); font-size: 0.8em; }
+        .table-container { overflow-x: auto; }
+        
+        .section-title-wrapper { /* New wrapper for title and PNG button */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 1.5rem; 
             border-bottom-width: 2px;
             padding-bottom: 0.5rem; 
         }
-        .list-item::before {
-            content: "✓";
-            margin-right: 0.5rem; 
-            font-weight: bold;
+        .section-title {
+            font-size: 1.875rem; font-weight: 600; 
+            /* margin-bottom and border removed, handled by wrapper */
         }
+        .download-png-button {
+            padding: 0.3rem 0.6rem; /* Smaller padding for icon button */
+            font-size: 0.8rem;
+            border-radius: 0.375rem;
+        }
+
+
+        .list-item::before { content: "✓"; margin-right: 0.5rem; font-weight: bold; }
         .light-mode .list-item::before { color: #3b82f6; } 
 
         .theme-toggle-button {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 0.75rem;
-            border-radius: 50%;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            z-index: 1000;
-            cursor: pointer;
+            position: fixed; top: 20px; right: 20px; padding: 0.75rem; border-radius: 50%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 1000; cursor: pointer;
             transition: background-color 0.3s, color 0.3s;
         }
-         .light-mode .theme-toggle-button {
-            background-color: #3b82f6; 
-            color: white;
-        }
-        .light-mode .theme-toggle-button:hover {
-             background-color: #2563eb; 
-        }
+         .light-mode .theme-toggle-button { background-color: #3b82f6; color: white; }
+        .light-mode .theme-toggle-button:hover { background-color: #2563eb; }
         
-        .upload-section { /* Padding already applied by .report-section */
+        .upload-section { }
+        .file-input-label, .action-button { 
+            padding: 0.5rem 1rem; border-radius: 0.375rem; cursor: pointer;
+            font-weight: 500; transition: background-color 0.2s ease-in-out;
+            display: inline-flex; align-items: center; 
         }
-        .file-input-label, .action-button { /* Renamed .load-button to .action-button for general use */
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem; 
-            cursor: pointer;
-            font-weight: 500;
-            transition: background-color 0.2s ease-in-out;
-            display: inline-flex; /* For icon alignment */
-            align-items: center; /* For icon alignment */
-        }
-        input[type="file"] {
-            display: none; 
-        }
-        #fileName {
-            margin-left: 1rem;
-            font-style: italic;
-        }
-        .action-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+        input[type="file"] { display: none; }
+        #fileName { margin-left: 1rem; font-style: italic; }
+        .action-button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-
-        .container {
-            min-height: calc(100vh - 4rem); 
-        }
-        .placeholder-text {
-            text-align: center;
-            padding: 1rem;
-        }
-        .post-card-content {
-            flex-grow: 1; 
-        }
+        .container { min-height: calc(100vh - 4rem); }
+        .placeholder-text { text-align: center; padding: 1rem; }
+        .post-card-content { flex-grow: 1; }
         select#postSelectorDropdown {
-            width: 100%;
-            padding: 0.75rem;
-            border-radius: 0.375rem; 
-            border-width: 1px;
-            margin-bottom: 1.5rem; 
-            cursor: pointer;
+            width: 100%; padding: 0.75rem; border-radius: 0.375rem; 
+            border-width: 1px; margin-bottom: 1.5rem; cursor: pointer;
         }
-        #individualPostDetailsContainer .detail-item {
-            padding: 0.5rem 0;
-            border-bottom-width: 1px;
-        }
-         .light-mode #individualPostDetailsContainer .detail-item {
-            border-bottom-color: #e5e7eb; 
-        }
-        .dark-mode #individualPostDetailsContainer .detail-item {
-            border-bottom-color: #4b5563; 
-        }
-        #individualPostDetailsContainer .detail-item:last-child {
-            border-bottom-width: 0;
-        }
-        #individualPostDetailsContainer .detail-label {
-            font-weight: 600;
-        }
+        #individualPostDetailsContainer .detail-item { padding: 0.5rem 0; border-bottom-width: 1px; }
+         .light-mode #individualPostDetailsContainer .detail-item { border-bottom-color: #e5e7eb; }
+        .dark-mode #individualPostDetailsContainer .detail-item { border-bottom-color: #4b5563; }
+        #individualPostDetailsContainer .detail-item:last-child { border-bottom-width: 0; }
+        #individualPostDetailsContainer .detail-label { font-weight: 600; }
         #individualPostDetailsContainer .post-text-display {
-            white-space: pre-wrap; 
-            word-break: break-word;
-            max-height: 200px; 
-            overflow-y: auto;
-            padding: 0.5rem;
-            border-radius: 0.25rem;
+            white-space: pre-wrap; word-break: break-word; max-height: 200px; 
+            overflow-y: auto; padding: 0.5rem; border-radius: 0.25rem;
         }
-        .light-mode #individualPostDetailsContainer .post-text-display {
-             background-color: #f9fafb; 
+        .light-mode #individualPostDetailsContainer .post-text-display { background-color: #f9fafb; }
+        .dark-mode #individualPostDetailsContainer .post-text-display { background-color: #4b5563; }
+        .hidden-section { display: none !important; }
+
+        /* HTML Slide Show Styles */
+        #htmlSlideShowContainer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 2000; overflow-y: auto; padding: 2rem; 
         }
-        .dark-mode #individualPostDetailsContainer .post-text-display {
-             background-color: #4b5563; 
+        .light-mode #htmlSlideShowContainer { background-color: #e5e7eb; } 
+        .dark-mode #htmlSlideShowContainer { background-color: #111827; } 
+
+        .html-slide {
+            border-radius: 0.5rem; padding: 2rem; 
+            margin: 1rem auto; 
+            max-width: 900px; 
+            min-height: 500px; 
+            display: none; 
+            flex-direction: column; justify-content: center; 
+            align-items: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            overflow: hidden; 
         }
-        .hidden-section {
-            display: none !important;
+        .light-mode .html-slide { background-color: #ffffff; color: #1f2937;}
+        .dark-mode .html-slide { background-color: #374151; color: #f3f4f6;}
+        
+        .html-slide.active { display: flex; }
+        .html-slide-title { font-size: 2em; font-weight: bold; margin-bottom: 0.5em; text-align: center;} 
+        .html-slide-explainer { font-size: 0.9em; font-style: italic; margin-bottom: 1.5em; text-align: center; max-width: 80%;}
+        .html-slide-content { 
+            width: 100%; 
+            text-align: left; 
+            overflow-y: auto; 
+            flex-grow: 1; 
+            padding: 0 1rem; 
+        }
+        .html-slide-content table { margin: 1em auto; width: auto; max-width: 100%; font-size: 0.85em; } 
+        .html-slide-content ul { list-style: disc; padding-left: 1.5em; font-size: 0.9em; }
+        .html-slide-content .grid { font-size: 0.9em; } 
+        .html-slide-content .metric-card { padding: 0.75rem; }
+        .html-slide-content .metric-value { font-size: 1.5rem; }
+        .html-slide-content .metric-label { font-size: 0.75rem; }
+
+
+        #slideShowControls {
+            position: fixed; bottom: 20px; left: 50%;
+            transform: translateX(-50%); z-index: 2010;
+            display: flex; gap: 1rem;
+        }
+        #slideShowControls button {
+            padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: 500;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .light-mode #slideShowControls button { background-color: #3b82f6; color: white; }
+        .light-mode #slideShowControls button:hover { background-color: #2563eb; }
+        .dark-mode #slideShowControls button { background-color: #60a5fa; color: #1f2937; }
+        .dark-mode #slideShowControls button:hover { background-color: #3b82f6; }
+        
+        #exitSlideShowButton {
+            position: fixed; top: 30px; right: 30px; z-index: 2010;
+        }
+
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            #mainReportContainer, #slideShowControls, #exitSlideShowButton, #theme-toggle, .download-png-button { /* Hide PNG buttons in print */
+                display: none !important;
+            }
+            #htmlSlideShowContainer {
+                position: static !important; 
+                width: auto !important; 
+                height: auto !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                overflow: visible !important; 
+                background-color: transparent !important;
+            }
+            .html-slide {
+                display: flex !important; 
+                width: 100% !important; 
+                height: auto !important; 
+                min-height: 0 !important; 
+                margin: 0 0 20px 0 !important; 
+                box-shadow: none !important;
+                border: 1px solid #ccc !important; 
+                page-break-after: always !important; 
+                overflow: visible !important; 
+            }
+             .html-slide:last-child {
+                page-break-after: avoid !important;
+            }
+            .html-slide-content {
+                overflow-y: visible !important; 
+                max-height: none !important;
+            }
         }
 
     </style>
 </head>
 <body class="light-mode p-4 md:p-8">
-    <div class="container mx-auto max-w-5xl">
+    <div id="mainReportContainer"> 
+        <div class="container mx-auto max-w-5xl">
 
-        <button id="theme-toggle" class="theme-toggle-button" title="Toggle dark/light mode">
-            <i class="fas fa-moon"></i>
-        </button>
+            <button id="theme-toggle" class="theme-toggle-button" title="Toggle dark/light mode">
+                <i class="fas fa-moon"></i>
+            </button>
 
-        <header class="mb-6 text-center pt-8 md:pt-12">
-            <h1 class="text-4xl font-bold text-main-header">IntersectMBO</h1>
-            <p class="text-xl text-sub-header mt-2">Interactive Account Analytics Report</p>
-            <p id="data-period-display" class="text-sm text-muted">Upload a CSV file to view analytics.</p>
-        </header>
+            <header class="mb-6 text-center pt-8 md:pt-12">
+                <h1 id="reportMainTitle" class="text-4xl font-bold text-main-header">@IntersectMBO Analytics Report</h1>
+                <p class="text-xl text-sub-header mt-2">Interactive Account Analytics Report</p>
+                <p id="data-period-display" class="text-sm text-muted">Upload a CSV file to view analytics.</p>
+            </header>
 
-        <!-- CSV Upload Section -->
-        <section class="upload-section report-section">
-            <h2 class="text-xl font-semibold mb-3">Upload New CSV Data</h2>
-            <div class="flex items-center mb-3">
-                <label for="csvFileInput" class="file-input-label">
-                    <i class="fas fa-file-csv mr-2"></i>Choose CSV File
-                </label>
-                <input type="file" id="csvFileInput" accept=".csv">
-                <span id="fileName" class="text-muted">No file chosen</span>
-            </div>
-            <div class="space-x-2"> <!-- Container for buttons -->
-                <button id="loadCsvButton" class="action-button load-button">
-                    <i class="fas fa-sync-alt mr-2"></i>Load and Process Data
-                </button>
-                <button id="downloadPptxButton" class="action-button download-button" disabled>
-                    <i class="fas fa-file-powerpoint mr-2"></i>Download Slide Deck
-                </button>
-            </div>
-            <p id="uploadStatus" class="text-sm mt-2"></p>
-        </section>
-
-        <!-- ====== CONTENT ANALYTICS SECTIONS (Initially hidden if overview is shown) ====== -->
-        <div id="contentAnalyticsSections">
-            <!-- Individual Post Analysis Section (Excluded from PPTX) -->
-            <section id="individual-post-analysis" class="report-section">
-                <h2 class="section-title">Individual Post Analysis</h2>
-                <select id="postSelectorDropdown" disabled>
-                    <option value="">Upload a Content CSV to select a post</option>
-                </select>
-                <div id="individualPostDetailsContainer" class="mt-4">
-                    <p class="text-muted placeholder-text">Select a post from the dropdown above to view its details.</p>
+            <section class="upload-section report-section">
+                <h2 class="text-xl font-semibold mb-3">Upload New CSV Data</h2>
+                <div class="flex items-center mb-3">
+                    <label for="csvFileInput" class="file-input-label">
+                        <i class="fas fa-file-csv mr-2"></i>Choose CSV File
+                    </label>
+                    <input type="file" id="csvFileInput" accept=".csv">
+                    <span id="fileName" class="text-muted">No file chosen</span>
                 </div>
+                <div class="space-x-2 flex flex-wrap gap-2"> 
+                    <button id="loadCsvButton" class="action-button load-button">
+                        <i class="fas fa-sync-alt mr-2"></i>Load and Process Data
+                    </button>
+                    <button id="viewHtmlSlideShowButton" class="action-button slideshow-button" disabled>
+                        <i class="fas fa-tv mr-2"></i>View as Slides
+                    </button>
+                </div>
+                <p id="uploadStatus" class="text-sm mt-2"></p>
             </section>
 
-            <!-- Aggregate Performance Metrics Section (For Content CSV) -->
-            <section id="aggregate-metrics-content" class="report-section">
-                <h2 class="section-title">Content Performance Metrics (Per Post Data)</h2>
+            <div id="contentAnalyticsSections">
+                <section id="individual-post-analysis" class="report-section">
+                    <div class="section-title-wrapper">
+                        <h2 class="section-title">Individual Post Analysis</h2>
+                        <button class="action-button download-png-button" data-section-id="individual-post-analysis" title="Download as PNG" disabled><i class="fas fa-image"></i></button>
+                    </div>
+                    <select id="postSelectorDropdown" disabled>
+                        <option value="">Upload a Content CSV to select a post</option>
+                    </select>
+                    <div id="individualPostDetailsContainer" class="mt-4">
+                        <p class="text-muted placeholder-text">Select a post from the dropdown above to view its details.</p>
+                    </div>
+                </section>
+                <section id="aggregate-metrics-content" class="report-section">
+                    <div class="section-title-wrapper">
+                        <h2 class="section-title">Content Performance Metrics</h2>
+                        <button class="action-button download-png-button" data-section-id="aggregate-metrics-content" title="Download as PNG" disabled><i class="fas fa-image"></i></button>
+                    </div>
+                    <div class="table-container">
+                        <table id="metricsTableContent" class="min-w-full divide-y">
+                            <thead class="table-header">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" data-sort-col="0">Metric <span class="sort-icon"></span></th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" data-sort-col="1" data-sort-type="number">Total <span class="sort-icon"></span></th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" data-sort-col="2" data-sort-type="number">Average per Post <span class="sort-icon"></span></th>
+                                </tr>
+                            </thead>
+                            <tbody id="metricsTableBodyContent" class="divide-y">
+                                <tr><td colspan="3" class="px-6 py-10 text-center text-muted placeholder-text">Upload a Content CSV to view aggregate metrics.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                <section id="engagement-insights-content" class="report-section">
+                     <div class="section-title-wrapper">
+                        <h2 class="section-title">Content Engagement Insights</h2>
+                        <button class="action-button download-png-button" data-section-id="engagement-insights-content" title="Download as PNG" disabled><i class="fas fa-image"></i></button>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="metric-card text-center">
+                            <div id="engagementRateDisplayContent" class="metric-value text-blue-600 dark:text-blue-400">N/A</div>
+                            <div class="metric-label text-muted">Overall Engagement Rate</div>
+                            <p class="text-xs text-muted mt-1">(Based on 'Engagements' column / Total Impressions)</p>
+                        </div>
+                        <div class="p-6"> 
+                            <h3 class="text-lg font-semibold mb-2">Key Engagement Drivers:</h3>
+                            <ul id="engagementDriversListContent" class="list-disc list-inside space-y-1">
+                                <li class="text-muted placeholder-text">Upload a Content CSV to view key engagement drivers.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+                <section id="top-posts-content" class="report-section">
+                    <div class="section-title-wrapper">
+                        <h2 class="section-title">Top Performing Posts Highlights</h2>
+                        <button class="action-button download-png-button" data-section-id="top-posts-content" title="Download as PNG" disabled><i class="fas fa-image"></i></button>
+                    </div>
+                    <div id="topPostsContainerContent" class="grid md:grid-cols-2 gap-6">
+                        <p class="text-muted placeholder-text col-span-full">Upload a Content CSV to view top performing posts.</p>
+                    </div>
+                </section>
+            </div>
+            <section id="accountOverviewSection" class="report-section hidden-section">
+                 <div class="section-title-wrapper">
+                    <h2 class="section-title">Account Overview Analytics</h2>
+                    <button class="action-button download-png-button" data-section-id="accountOverviewSection" title="Download as PNG" disabled><i class="fas fa-image"></i></button>
+                </div>
+                <div id="overviewSummaryCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <p class="text-muted placeholder-text col-span-full">Loading overview summary...</p>
+                </div>
+                <h3 class="text-xl font-semibold mb-4">Daily Overview Data</h3>
                 <div class="table-container">
-                    <table id="metricsTableContent" class="min-w-full divide-y">
-                        <thead class="table-header">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" data-sort-col="0">Metric <span class="sort-icon"></span></th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" data-sort-col="1" data-sort-type="number">Total <span class="sort-icon"></span></th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" data-sort-col="2" data-sort-type="number">Average per Post <span class="sort-icon"></span></th>
-                            </tr>
-                        </thead>
-                        <tbody id="metricsTableBodyContent" class="divide-y">
-                            <tr><td colspan="3" class="px-6 py-10 text-center text-muted placeholder-text">Upload a Content CSV to view aggregate metrics.</td></tr>
+                    <table id="overviewDailyTable" class="min-w-full divide-y">
+                        <thead id="overviewDailyTableHead" class="table-header"></thead>
+                        <tbody id="overviewDailyTableBody" class="divide-y">
+                            <tr><td colspan="10" class="px-6 py-10 text-center text-muted placeholder-text">Loading daily overview data...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </section>
-
-            <section id="engagement-insights-content" class="report-section">
-                <h2 class="section-title">Content Engagement Insights</h2>
-                 <div class="grid md:grid-cols-2 gap-6">
-                    <div class="metric-card text-center">
-                        <div id="engagementRateDisplayContent" class="metric-value text-blue-600 dark:text-blue-400">N/A</div>
-                        <div class="metric-label text-muted">Overall Engagement Rate</div>
-                        <p class="text-xs text-muted mt-1">(Based on 'Engagements' column / Total Impressions)</p>
+            <section id="interpretive-sections-container" class="report-section">
+                <section id="content-themes-dynamic" class="mb-12 report-section"> 
+                    <div class="section-title-wrapper">
+                        <h2 class="section-title">Key Content Themes</h2>
+                        <button class="action-button download-png-button" data-section-id="content-themes-dynamic" title="Download as PNG" disabled><i class="fas fa-image"></i></button>
                     </div>
-                    <div class="p-6"> 
-                        <h3 class="text-lg font-semibold mb-2">Key Engagement Drivers:</h3>
-                        <ul id="engagementDriversListContent" class="list-disc list-inside space-y-1">
-                            <li class="text-muted placeholder-text">Upload a Content CSV to view key engagement drivers.</li>
-                        </ul>
+                    <div id="contentThemesBody" class="p-6">
+                        <p class="text-muted placeholder-text">Upload data to generate content themes.</p>
                     </div>
-                </div>
+                </section>
+                <section id="key-observations-dynamic" class="mb-12 report-section">
+                    <div class="section-title-wrapper">
+                        <h2 class="section-title">Key Observations & Potential Insights</h2>
+                        <button class="action-button download-png-button" data-section-id="key-observations-dynamic" title="Download as PNG" disabled><i class="fas fa-image"></i></button>
+                    </div>
+                     <div id="keyObservationsBody" class="p-6">
+                        <p class="text-muted placeholder-text">Upload data to generate key observations.</p>
+                    </div>
+                </section>
+                <section id="conclusion-dynamic" class="mb-12 report-section">
+                    <div class="section-title-wrapper">
+                        <h2 class="section-title">Conclusion</h2>
+                        <button class="action-button download-png-button" data-section-id="conclusion-dynamic" title="Download as PNG" disabled><i class="fas fa-image"></i></button>
+                    </div>
+                    <div id="conclusionBody" class="p-6">
+                        <p class="text-muted placeholder-text">Upload data to generate a conclusion.</p>
+                    </div>
+                </section>
             </section>
-
-            <section id="top-posts-content" class="report-section">
-                <h2 class="section-title">Top Performing Posts Highlights</h2>
-                <div id="topPostsContainerContent" class="grid md:grid-cols-2 gap-6">
-                     <p class="text-muted placeholder-text col-span-full">Upload a Content CSV to view top performing posts.</p>
-                </div>
-            </section>
+            <footer class="text-center mt-12 py-6 border-t text-muted"><p class="text-sm">&copy; <span id="currentYear"></span> IntersectMBO Analytics Report.</p></footer>
         </div>
+    </div>
 
-        <!-- ====== ACCOUNT OVERVIEW ANALYTICS SECTION (Initially hidden) ====== -->
-        <section id="accountOverviewSection" class="report-section hidden-section">
-            <h2 class="section-title">Account Overview Analytics</h2>
-            <div id="overviewSummaryCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                 <p class="text-muted placeholder-text col-span-full">Loading overview summary...</p>
-            </div>
-            <h3 class="text-xl font-semibold mb-4">Daily Overview Data</h3>
-            <div class="table-container">
-                <table id="overviewDailyTable" class="min-w-full divide-y">
-                    <thead id="overviewDailyTableHead" class="table-header">
-                    </thead>
-                    <tbody id="overviewDailyTableBody" class="divide-y">
-                        <tr><td colspan="10" class="px-6 py-10 text-center text-muted placeholder-text">Loading daily overview data...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-
-        <!-- Common Interpretive Sections -->
-        <section id="interpretive-sections-container" class="report-section">
-            <div id="interpretiveNotice" class="p-6 mb-6" style="display: none;">
-                <h3 class="text-lg font-semibold mb-2 text-amber-600 dark:text-amber-400"><i class="fas fa-exclamation-triangle mr-2"></i>Note on Uploaded Data</h3>
-                <p>The following sections (Content Themes, Key Observations, Conclusion) are based on an original sample dataset. Analysis and insights for the currently uploaded CSV would require specific interpretation of its content.</p>
-            </div>
-
-            <section id="content-themes" class="mb-12">
-                <h2 class="section-title">Key Content Themes (Sample Data Insight)</h2>
-                <div class="p-6">
-                    <ul class="space-y-2">
-                        <li class="list-item"><strong>Cardano Governance:</strong> Dominant theme focusing on elections, DRep registration, voting, GovTool, and CIP-1694.</li>
-                        <li class="list-item"><strong>Community Engagement & Updates:</strong> Calls to action, AMAs, Q&A sessions, and weekly development updates.</li>
-                    </ul>
-                </div>
-            </section>
-            <section id="key-observations" class="mb-12">
-                <h2 class="section-title">Key Observations & Potential Insights (Sample Data Insight)</h2>
-                 <div class="p-6">
-                    <ul class="space-y-2">
-                        <li class="list-item">High engagement around governance topics.</li>
-                        <li class="list-item">"New Follows" metric relatively low in sample.</li>
-                    </ul>
-                </div>
-            </section>
-            <section id="conclusion" class="mb-12">
-                <h2 class="section-title">Conclusion (Sample Data Insight)</h2>
-                <div class="p-6">
-                    <p class="leading-relaxed">
-                        The original sample data showed strong engagement, particularly around governance.
-                    </p>
-                </div>
-            </section>
-        </section>
-
-        <footer class="text-center mt-12 py-6 border-t text-muted">
-            <p class="text-sm">&copy; <span id="currentYear"></span> IntersectMBO Analytics Report.</p>
-        </footer>
+    <!-- HTML Slide Show Container -->
+    <div id="htmlSlideShowContainer" class="hidden-section">
+        <button id="exitSlideShowButton" class="action-button">
+            <i class="fas fa-times mr-2"></i>Exit Slide Show
+        </button>
+        <div id="slideContentArea" class="mt-12">
+            <!-- Slides will be injected here -->
+        </div>
+        <div id="slideShowControls">
+            <button id="prevSlideButton"><i class="fas fa-arrow-left mr-1"></i> Previous</button>
+            <span id="slideIndicator" class="self-center"></span>
+            <button id="nextSlideButton">Next <i class="fas fa-arrow-right ml-1"></i></button>
+        </div>
     </div>
 
     <script>
@@ -477,6 +510,9 @@
         let parsedCsvData = []; 
         let currentCsvType = null; 
         let currentCsvHeaders = []; 
+        let currentChannelName = "IntersectMBO"; 
+        let htmlSlides = [];
+        let currentSlideIndex = 0;
 
         const themeToggle = document.getElementById('theme-toggle');
         const body = document.body;
@@ -498,11 +534,19 @@
 
         const csvFileInput = document.getElementById('csvFileInput');
         const loadCsvButton = document.getElementById('loadCsvButton');
-        const downloadPptxButton = document.getElementById('downloadPptxButton'); 
+        const viewHtmlSlideShowButton = document.getElementById('viewHtmlSlideShowButton'); 
         const fileNameDisplay = document.getElementById('fileName');
         const uploadStatus = document.getElementById('uploadStatus');
         const dataPeriodDisplay = document.getElementById('data-period-display');
-        const interpretiveNotice = document.getElementById('interpretiveNotice');
+        const reportMainTitle = document.getElementById('reportMainTitle'); 
+        
+        const mainReportContainer = document.getElementById('mainReportContainer'); 
+        const htmlSlideShowContainer = document.getElementById('htmlSlideShowContainer');
+        const slideContentArea = document.getElementById('slideContentArea');
+        const prevSlideButton = document.getElementById('prevSlideButton');
+        const nextSlideButton = document.getElementById('nextSlideButton');
+        const exitSlideShowButton = document.getElementById('exitSlideShowButton');
+        const slideIndicator = document.getElementById('slideIndicator');
 
         const contentAnalyticsSections = document.getElementById('contentAnalyticsSections');
         const metricsTableBodyContent = document.getElementById('metricsTableBodyContent');
@@ -517,10 +561,32 @@
         const overviewDailyTableHead = document.getElementById('overviewDailyTableHead');
         const overviewDailyTableBody = document.getElementById('overviewDailyTableBody');
 
+        const contentThemesBody = document.getElementById('contentThemesBody');
+        const keyObservationsBody = document.getElementById('keyObservationsBody');
+        const conclusionBody = document.getElementById('conclusionBody');
+
         const CONTENT_METRIC_COLUMNS = ['Impressions', 'Likes', 'Engagements', 'Bookmarks', 'Shares', 'New follows', 'Replies', 'Reposts', 'Profile visits', 'Detail Expands', 'URL Clicks', 'Hashtag Clicks', 'Permalink Clicks'];
         const OVERVIEW_METRIC_COLUMNS = ['Impressions', 'Likes', 'Engagements', 'Bookmarks', 'Shares', 'New follows', 'Unfollows', 'Replies', 'Reposts', 'Profile visits', 'Create Post', 'Video views', 'Media views'];
 
         const normalizeHeader = (header) => header ? header.toLowerCase().replace(/\s+/g, '') : '';
+        
+        const STOP_WORDS = new Set([
+            'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any', 'are', 'aren\'t', 'as', 'at', 
+            'be', 'because', 'been', 'before', 'being', 'below', 'between', 'both', 'but', 'by', 'can\'t', 'cannot', 'could', 
+            'couldn\'t', 'did', 'didn\'t', 'do', 'does', 'doesn\'t', 'doing', 'don\'t', 'down', 'during', 'each', 'few', 'for', 
+            'from', 'further', 'had', 'hadn\'t', 'has', 'hasn\'t', 'have', 'haven\'t', 'having', 'he', 'he\'d', 'he\'ll', 'he\'s', 
+            'her', 'here', 'here\'s', 'hers', 'herself', 'him', 'himself', 'his', 'how', 'how\'s', 'i', 'i\'d', 'i\'ll', 'i\'m', 
+            'i\'ve', 'if', 'in', 'into', 'is', 'isn\'t', 'it', 'it\'s', 'its', 'itself', 'let\'s', 'me', 'more', 'most', 'mustn\'t', 
+            'my', 'myself', 'no', 'nor', 'not', 'of', 'off', 'on', 'once', 'only', 'or', 'other', 'ought', 'our', 'ours', 
+            'ourselves', 'out', 'over', 'own', 'same', 'shan\'t', 'she', 'she\'d', 'she\'ll', 'she\'s', 'should', 'shouldn\'t', 
+            'so', 'some', 'such', 'than', 'that', 'that\'s', 'the', 'their', 'theirs', 'them', 'themselves', 'then', 'there', 
+            'there\'s', 'these', 'they', 'they\'d', 'they\'ll', 'they\'re', 'they\'ve', 'this', 'those', 'through', 'to', 'too', 
+            'under', 'until', 'up', 'very', 'was', 'wasn\'t', 'we', 'we\'d', 'we\'ll', 'we\'re', 'we\'ve', 'were', 'weren\'t', 
+            'what', 'what\'s', 'when', 'when\'s', 'where', 'where\'s', 'which', 'while', 'who', 'who\'s', 'whom', 'why', 'why\'s', 
+            'with', 'won\'t', 'would', 'wouldn\'t', 'you', 'you\'d', 'you\'ll', 'you\'re', 'you\'ve', 'your', 'yours', 'yourself', 
+            'yourselves', 'http', 'https', 'www', 'com', 'twitter', 'cardano', 'ada'
+        ]);
+
 
         csvFileInput.addEventListener('change', () => {
             if (csvFileInput.files.length > 0) {
@@ -547,37 +613,45 @@
 
             uploadStatus.textContent = 'Processing...';
             uploadStatus.style.color = 'inherit'; 
-            if(downloadPptxButton) downloadPptxButton.disabled = true; 
+            if(viewHtmlSlideShowButton) viewHtmlSlideShowButton.disabled = true;
+            disablePngDownloadButtons(); 
 
             const reader = new FileReader();
             reader.onload = function(event) {
                 try {
                     const csvData = event.target.result;
+                    currentChannelName = "IntersectMBO"; 
                     parsedCsvData = parseCSV(csvData); 
+                    
                     if (!parsedCsvData || parsedCsvData.length === 0) {
                         throw new Error("CSV is empty or could not be parsed.");
                     }
-                    currentCsvHeaders = Object.keys(parsedCsvData[0] || {});
+                    currentCsvHeaders = Object.keys(parsedCsvData[0] || {}); 
                     currentCsvType = detectCsvType(currentCsvHeaders);
                     if (!currentCsvType) {
                         throw new Error("Could not determine CSV type. Ensure headers are correct (e.g., 'Post id' and 'Post text' for Content, or 'Date' and 'Unfollows' for Overview).");
                     }
+                    
+                    if (reportMainTitle) { 
+                         reportMainTitle.textContent = `@${currentChannelName} Analytics Report`;
+                    }
 
                     processAndDisplayData(parsedCsvData, file.name, currentCsvType);
-                    uploadStatus.textContent = `Successfully loaded and processed '${file.name}' (${currentCsvType} data).`;
+                    const displayChannel = currentChannelName === "IntersectMBO" ? "IntersectMBO (Default)" : `@${currentChannelName}`;
+                    uploadStatus.textContent = `Successfully loaded and processed '${file.name}' (${currentCsvType} data for ${displayChannel}).`;
                     uploadStatus.style.color = 'green';
-                    interpretiveNotice.style.display = 'block'; 
-                    if(downloadPptxButton) downloadPptxButton.disabled = false; 
+                    if(viewHtmlSlideShowButton) viewHtmlSlideShowButton.disabled = false;
+                    enablePngDownloadButtons(); 
                 } catch (error) {
                     console.error("Error processing CSV:", error);
                     parsedCsvData = []; 
                     currentCsvType = null;
                     currentCsvHeaders = [];
+                    currentChannelName = "IntersectMBO"; 
+                     if (reportMainTitle) reportMainTitle.textContent = "@IntersectMBO Analytics Report"; 
                     uploadStatus.textContent = `Error: ${error.message}. Check console.`;
                     uploadStatus.style.color = 'red';
-                    interpretiveNotice.style.display = 'none'; 
                     resetUI(); 
-                    if(downloadPptxButton) downloadPptxButton.disabled = true;
                 }
             };
             reader.onerror = function() {
@@ -586,19 +660,26 @@
                 parsedCsvData = [];
                 currentCsvType = null;
                 currentCsvHeaders = [];
-                interpretiveNotice.style.display = 'none';
+                currentChannelName = "IntersectMBO"; 
+                if (reportMainTitle) reportMainTitle.textContent = "@IntersectMBO Analytics Report"; 
                 resetUI();
-                if(downloadPptxButton) downloadPptxButton.disabled = true;
             };
             reader.readAsText(file);
         });
         
-        if (downloadPptxButton) {
-            console.log('Attempting to add event listener to Download PPTX button.'); 
-            downloadPptxButton.addEventListener('click', generatePptxReport);
-        } else {
-            console.error('Download PPTX Button not found in DOM!'); 
+        if (viewHtmlSlideShowButton) {
+            viewHtmlSlideShowButton.addEventListener('click', startHtmlSlideShow);
         }
+        if (exitSlideShowButton) {
+            exitSlideShowButton.addEventListener('click', exitHtmlSlideShow);
+        }
+        if (prevSlideButton) {
+            prevSlideButton.addEventListener('click', showPrevSlide);
+        }
+        if (nextSlideButton) {
+            nextSlideButton.addEventListener('click', showNextSlide);
+        }
+
 
         function resetUI() {
             metricsTableBodyContent.innerHTML = '<tr><td colspan="3" class="px-6 py-10 text-center text-muted placeholder-text">Upload a Content CSV.</td></tr>';
@@ -614,7 +695,13 @@
             overviewDailyTableBody.innerHTML = '<tr><td colspan="10" class="px-6 py-10 text-center text-muted placeholder-text">Upload an Overview CSV.</td></tr>';
             accountOverviewSection.classList.add('hidden-section');
             dataPeriodDisplay.textContent = "Upload a CSV file to view analytics.";
-            if(downloadPptxButton) downloadPptxButton.disabled = true; 
+            if(viewHtmlSlideShowButton) viewHtmlSlideShowButton.disabled = true;
+            contentThemesBody.innerHTML = '<p class="text-muted placeholder-text">Upload data to generate content themes.</p>';
+            keyObservationsBody.innerHTML = '<p class="text-muted placeholder-text">Upload data to generate key observations.</p>';
+            conclusionBody.innerHTML = '<p class="text-muted placeholder-text">Upload data to generate a conclusion.</p>';
+            currentChannelName = "IntersectMBO"; 
+            if(reportMainTitle) reportMainTitle.textContent = "@IntersectMBO Analytics Report"; 
+            disablePngDownloadButtons();
         }
 
         function detectCsvType(headers) {
@@ -635,6 +722,35 @@
             const rawHeaders = lines[0].split(',');
             const headers = rawHeaders.map(h => h.trim());
             currentCsvHeaders = headers; 
+
+            const channelNameHeaders = ["Screen name", "Author", "Account", "Channel Name", "User Name", "Username"];
+            let foundChannelName = null; 
+            for (const chHeader of channelNameHeaders) {
+                const actualHeader = headers.find(h => normalizeHeader(h) === normalizeHeader(chHeader));
+                if (actualHeader && lines.length > 1) { 
+                    const firstDataLineValues = [];
+                    let currentValTmp = '';
+                    let inQuotesTmp = false;
+                    for (let j = 0; j < lines[1].length; j++) {
+                        const char = lines[1][j];
+                        if (char === '"') {
+                            if (inQuotesTmp && j + 1 < lines[1].length && lines[1][j+1] === '"') { currentValTmp += '"'; j++; continue; }
+                            inQuotesTmp = !inQuotesTmp;
+                        } else if (char === ',' && !inQuotesTmp) {
+                            firstDataLineValues.push(currentValTmp.trim()); currentValTmp = '';
+                        } else { currentValTmp += char; }
+                    }
+                    firstDataLineValues.push(currentValTmp.trim());
+                    
+                    const headerIndex = headers.indexOf(actualHeader);
+                    if (headerIndex !== -1 && firstDataLineValues[headerIndex] && firstDataLineValues[headerIndex].trim() !== "") {
+                        foundChannelName = firstDataLineValues[headerIndex].replace(/^@/, ''); 
+                        break; 
+                    }
+                }
+            }
+            currentChannelName = foundChannelName || "IntersectMBO"; 
+
             const data = [];
             for (let i = 1; i < lines.length; i++) {
                 const values = [];
@@ -671,22 +787,63 @@
         
         function processAndDisplayData(data, fileName, csvType) {
             dataPeriodDisplay.textContent = `Data from: ${fileName}`;
+            let totals = {}; 
+
             if (csvType === 'content') {
                 contentAnalyticsSections.classList.remove('hidden-section');
                 accountOverviewSection.classList.add('hidden-section');
-                displayContentAnalytics(data);
+                totals = displayContentAnalytics(data); 
             } else if (csvType === 'overview') {
                 accountOverviewSection.classList.remove('hidden-section');
                 contentAnalyticsSections.classList.add('hidden-section');
-                displayOverviewAnalytics(data);
+                totals = displayOverviewAnalytics(data); 
             }
+            const themes = (csvType === 'content') ? generateThemesFromData(data) : [];
+            const observations = generateObservationsFromData(data, csvType, totals, currentCsvHeaders);
+            const conclusion = generateDynamicConclusion(themes, observations);
+
+            displayDynamicInsights(themes, observations, conclusion);
         }
+
+        function displayDynamicInsights(themes, observations, conclusion) {
+            contentThemesBody.innerHTML = '';
+            if (themes && themes.length > 0) {
+                const ul = document.createElement('ul');
+                ul.className = 'list-disc list-inside space-y-1';
+                themes.forEach(theme => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<strong>${theme.word}:</strong> Appeared ${theme.count} times.`;
+                    ul.appendChild(li);
+                });
+                contentThemesBody.appendChild(ul);
+            } else {
+                contentThemesBody.innerHTML = '<p class="text-muted placeholder-text">No significant content themes identified from the data.</p>';
+            }
+
+            keyObservationsBody.innerHTML = '';
+            if (observations && observations.length > 0) {
+                const ul = document.createElement('ul');
+                ul.className = 'list-disc list-inside space-y-1';
+                observations.forEach(obs => {
+                    const li = document.createElement('li');
+                    li.textContent = obs;
+                    ul.appendChild(li);
+                });
+                keyObservationsBody.appendChild(ul);
+            } else {
+                keyObservationsBody.innerHTML = '<p class="text-muted placeholder-text">No specific key observations generated from the data.</p>';
+            }
+
+            conclusionBody.innerHTML = `<p class="leading-relaxed">${conclusion || "No overall conclusion could be drawn from the provided data."}</p>`;
+        }
+
 
         function displayContentAnalytics(data) {
             const numPosts = data.length;
             const headers = currentCsvHeaders;
             const totals = {};
-            CONTENT_METRIC_COLUMNS.forEach(col => totals[col] = 0);
+            CONTENT_METRIC_COLUMNS.forEach(col => totals[col] = 0); 
+            
             data.forEach(row => {
                 CONTENT_METRIC_COLUMNS.forEach(colName => {
                     let actualColName = headers.find(h => normalizeHeader(h) === normalizeHeader(colName));
@@ -701,7 +858,7 @@
             newRowPosts.innerHTML = `<td class="px-6 py-4 whitespace-nowrap font-medium">Posts Analyzed</td><td class="px-6 py-4 whitespace-nowrap">${numPosts.toLocaleString()}</td><td class="px-6 py-4 whitespace-nowrap">-</td>`;
             metricsTableBodyContent.appendChild(newRowPosts);
             CONTENT_METRIC_COLUMNS.forEach(colName => {
-                const total = totals[colName] || 0;
+                const total = totals[colName] || 0; 
                 const average = numPosts > 0 ? (total / numPosts).toFixed(2) : '0.00';
                 const row = document.createElement('tr');
                 row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap">${colName}</td><td class="px-6 py-4 whitespace-nowrap">${total.toLocaleString()}</td><td class="px-6 py-4 whitespace-nowrap">${average}</td>`;
@@ -728,13 +885,14 @@
                 });
             }
             populatePostSelectorDropdown(data);
+            return totals; 
         }
         
         function displayOverviewAnalytics(data) {
             const numDays = data.length;
             const headers = currentCsvHeaders;
             const overviewTotals = {};
-            OVERVIEW_METRIC_COLUMNS.forEach(col => overviewTotals[col] = 0);
+            OVERVIEW_METRIC_COLUMNS.forEach(col => overviewTotals[col] = 0); 
             let totalNewFollows = 0, totalUnfollows = 0;
             data.forEach(dayData => {
                 OVERVIEW_METRIC_COLUMNS.forEach(colName => {
@@ -791,7 +949,123 @@
                 });
             }
             initializeTableSorting(document.getElementById('overviewDailyTable'));
+            return overviewTotals; 
         }
+
+        // --- Dynamic Insight Generation Functions ---
+        function generateThemesFromData(data) {
+            if (currentCsvType !== 'content' || !data || data.length === 0) return [];
+            
+            const postTextKey = currentCsvHeaders.find(h => normalizeHeader(h) === 'posttext') || currentCsvHeaders.find(h => normalizeHeader(h) === 'text');
+            if (!postTextKey) return [];
+
+            let allText = "";
+            data.forEach(row => {
+                if (row[postTextKey]) allText += row[postTextKey] + " ";
+            });
+
+            if (allText.trim() === "") return [];
+
+            const words = allText.toLowerCase().replace(/[^\w\s']|_/g, "").replace(/\s+/g, " ").split(" ");
+            const wordCounts = {};
+
+            words.forEach(word => {
+                if (word.length > 3 && !STOP_WORDS.has(word) && isNaN(word)) { 
+                    wordCounts[word] = (wordCounts[word] || 0) + 1;
+                }
+            });
+
+            const sortedWords = Object.entries(wordCounts)
+                .sort(([,a],[,b]) => b-a)
+                .slice(0, 5); 
+
+            return sortedWords.map(([word, count]) => ({ word, count }));
+        }
+
+        function generateObservationsFromData(data, csvType, totals, headers) {
+            const observations = [];
+            if (!data || data.length === 0 || !totals) return ["No data available for observations."];
+
+            if (csvType === 'content') {
+                const impressionsKey = headers.find(h => normalizeHeader(h) === 'impressions');
+                const engagementsKey = headers.find(h => normalizeHeader(h) === 'engagements');
+                const postIdKey = headers.find(h => normalizeHeader(h) === 'postid') || headers.find(h => normalizeHeader(h) === 'id');
+
+                let highestMetric = { name: 'N/A', value: 0 };
+                for(const metric of ['Likes', 'Engagements', 'Shares', 'Reposts', 'Replies']) {
+                    if (totals[metric] && totals[metric] > highestMetric.value) {
+                        highestMetric = { name: metric, value: totals[metric] };
+                    }
+                }
+                if(highestMetric.name !== 'N/A') observations.push(`Content saw high activity in ${highestMetric.name} (${highestMetric.value.toLocaleString()} total).`);
+
+                const totalImpressions = totals['Impressions'] || 0;
+                const totalEngagements = totals['Engagements'] || 0;
+                if (totalImpressions > 0) {
+                    const er = ((totalEngagements / totalImpressions) * 100).toFixed(2);
+                    observations.push(`The overall engagement rate was ${er}%.`);
+                } else {
+                    observations.push(`Engagement rate could not be calculated due to zero impressions.`);
+                }
+                
+                if (engagementsKey && postIdKey) {
+                    const topPostByEngagement = findTopPost(data, engagementsKey, headers);
+                    if (topPostByEngagement && topPostByEngagement.post) {
+                        observations.push(`The top post by Engagements (ID: ${topPostByEngagement.post[postIdKey] || 'N/A'}) garnered ${topPostByEngagement.value.toLocaleString()} engagements.`);
+                    }
+                }
+
+            } else if (csvType === 'overview') {
+                const dateKey = headers.find(h => normalizeHeader(h) === 'date');
+                const impressionsKey = headers.find(h => normalizeHeader(h) === 'impressions');
+                const engagementsKey = headers.find(h => normalizeHeader(h) === 'engagements');
+
+                const netFollowerGrowth = (totals['New follows'] || 0) - (totals['Unfollows'] || 0);
+                observations.push(`Net follower change was ${netFollowerGrowth.toLocaleString()} over this period.`);
+
+                if (impressionsKey && dateKey) {
+                    let peakImpressions = { value: -1, date: 'N/A' };
+                    data.forEach(row => {
+                        const val = parseFloat(String(row[impressionsKey] || '0').replace(/,/g, ''));
+                        if (!isNaN(val) && val > peakImpressions.value) {
+                            peakImpressions = { value: val, date: row[dateKey] || 'N/A' };
+                        }
+                    });
+                    if (peakImpressions.value > -1) observations.push(`Impressions peaked at ${peakImpressions.value.toLocaleString()} on ${peakImpressions.date}.`);
+                }
+                 if (engagementsKey && dateKey) {
+                    let peakEngagements = { value: -1, date: 'N/A' };
+                    data.forEach(row => {
+                        const val = parseFloat(String(row[engagementsKey] || '0').replace(/,/g, ''));
+                        if (!isNaN(val) && val > peakEngagements.value) {
+                            peakEngagements = { value: val, date: row[dateKey] || 'N/A' };
+                        }
+                    });
+                    if (peakEngagements.value > -1) observations.push(`Engagements were highest on ${peakEngagements.date} with ${peakEngagements.value.toLocaleString()}.`);
+                }
+            }
+            return observations.length > 0 ? observations : ["No specific observations generated from the data."];
+        }
+
+        function generateDynamicConclusion(themes, observations) {
+            if ((!themes || themes.length === 0) && (!observations || observations.length === 0 || observations[0].startsWith("No data"))) {
+                return "Insufficient data to draw specific conclusions. Please ensure the uploaded CSV contains relevant information.";
+            }
+            let conclusionStr = "Based on the uploaded data: ";
+            if (themes && themes.length > 0) {
+                conclusionStr += `Key content themes appear to revolve around ${themes.map(t => `"${t.word}"`).slice(0,2).join(' and ')}. `;
+            } else if (currentCsvType === 'content') {
+                conclusionStr += "While specific text themes were not prominent, the content performance metrics provide other insights. "
+            }
+
+            if (observations && observations.length > 0 && !observations[0].startsWith("No data")) {
+                conclusionStr += observations[0] + " "; 
+                if(observations.length > 1) conclusionStr += observations[1] + " ";
+            }
+            conclusionStr += "Further analysis of these patterns can help refine content strategy for optimal reach and interaction.";
+            return conclusionStr;
+        }
+
 
         function createOverviewMetricCard(label, value, valueColorClass = '') {
             const currentTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
@@ -879,6 +1153,9 @@
         postSelectorDropdown.addEventListener('change', function() { 
             const selectedIndex = this.value;
             individualPostDetailsContainer.innerHTML = ''; 
+            const individualPostPngButton = document.querySelector('button[data-section-id="individual-post-analysis"]');
+            if(individualPostPngButton) individualPostPngButton.disabled = (selectedIndex === "");
+
             if (selectedIndex === "" || !parsedCsvData || parsedCsvData.length === 0 || currentCsvType !== 'content') {
                 individualPostDetailsContainer.innerHTML = '<p class="text-muted placeholder-text">Select a post to view details.</p>'; return;
             }
@@ -983,181 +1260,281 @@
             return `Report for ${file}`; 
         }
 
-        function addSectionSlide(pptx, titleText, explainerText, contentCallback) {
-            let slide = pptx.addSlide();
-            slide.addText(titleText, { x: 0.5, y: 0.3, w: '90%', h: 0.5, fontSize: 24, bold: true, color: '363636', align: pptx.AlignH.left });
-            slide.addText(explainerText, { x: 0.5, y: 0.9, w: '90%', h: 0.4, fontSize: 11, italic: true, color: '7F7F7F', align: pptx.AlignH.left });
-            if (contentCallback) contentCallback(slide, pptx); 
+
+        // --- HTML Slide Show Functions ---
+        function startHtmlSlideShow() {
+            if (!parsedCsvData || parsedCsvData.length === 0) {
+                uploadStatus.textContent = "Please load data first to view slide show.";
+                uploadStatus.style.color = "orange";
+                return;
+            }
+            mainReportContainer.classList.add('hidden-section');
+            htmlSlideShowContainer.classList.remove('hidden-section');
+            document.body.style.overflow = 'hidden'; 
+            buildHtmlSlides();
+            currentSlideIndex = 0;
+            showHtmlSlide(currentSlideIndex);
         }
 
-        function generatePptxReport() {
-            console.log('generatePptxReport function CALLED.'); 
+        function exitHtmlSlideShow() {
+            mainReportContainer.classList.remove('hidden-section');
+            htmlSlideShowContainer.classList.add('hidden-section');
+            document.body.style.overflow = 'auto'; 
+            slideContentArea.innerHTML = ''; 
+            htmlSlides = [];
+        }
 
-            if (!downloadPptxButton || downloadPptxButton.disabled) {
-                console.warn('Download button is not available or is disabled. PPTX generation aborted.');
-                if (uploadStatus) {
-                    uploadStatus.textContent = "Download button is not ready. Please load data first.";
-                    uploadStatus.style.color = 'orange';
+        function showHtmlSlide(index) {
+            htmlSlides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            currentSlideIndex = index;
+            prevSlideButton.disabled = index === 0;
+            nextSlideButton.disabled = index === htmlSlides.length - 1;
+            slideIndicator.textContent = `Slide ${index + 1} of ${htmlSlides.length}`;
+        }
+
+        function showNextSlide() {
+            if (currentSlideIndex < htmlSlides.length - 1) {
+                showHtmlSlide(currentSlideIndex + 1);
+            }
+        }
+        function showPrevSlide() {
+            if (currentSlideIndex > 0) {
+                showHtmlSlide(currentSlideIndex - 1);
+            }
+        }
+        
+        function createHtmlSlideEl(title, explainer) {
+            const slideEl = document.createElement('div');
+            slideEl.className = 'html-slide'; 
+            
+            const titleEl = document.createElement('h3');
+            titleEl.className = 'html-slide-title';
+            titleEl.textContent = title;
+            slideEl.appendChild(titleEl);
+
+            if (explainer) {
+                const explainerEl = document.createElement('p');
+                explainerEl.className = 'html-slide-explainer';
+                explainerEl.textContent = explainer;
+                slideEl.appendChild(explainerEl);
+            }
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'html-slide-content';
+            slideEl.appendChild(contentDiv);
+            return { slideEl, contentDiv };
+        }
+
+        function buildHtmlSlides() {
+            htmlSlides = [];
+            slideContentArea.innerHTML = ''; 
+
+            const dateRangeStr = extractDateRange();
+            let { slideEl: titleSlideEl, contentDiv: titleContentDiv } = createHtmlSlideEl(`@${currentChannelName} Report`, `Data Period: ${dateRangeStr}`);
+            titleContentDiv.innerHTML = `<p class="text-center text-lg">Generated: ${new Date().toLocaleDateString()}</p>`;
+            titleContentDiv.style.textAlign = 'center'; 
+            htmlSlides.push(titleSlideEl);
+
+            if (currentCsvType === 'content' && metricsTableBodyContent.querySelectorAll('tr').length > 1) {
+                let { slideEl, contentDiv } = createHtmlSlideEl("Content Performance Metrics", "This slide summarizes the overall performance of your posts, showing total and average values for key metrics.");
+                const tableClone = document.getElementById('metricsTableContent').cloneNode(true);
+                contentDiv.appendChild(tableClone);
+                htmlSlides.push(slideEl);
+            }
+
+            if (currentCsvType === 'content' && engagementRateDisplayContent.textContent !== 'N/A') {
+                let { slideEl, contentDiv } = createHtmlSlideEl("Content Engagement Insights", "Highlights the overall engagement rate and lists primary drivers of user interaction.");
+                contentDiv.innerHTML = `
+                    <p class="text-xl font-semibold mb-4">Overall Engagement Rate: <span class="text-blue-600 dark:text-blue-400">${engagementRateDisplayContent.textContent}</span></p>
+                    <h4 class="text-lg font-semibold mb-2">Key Engagement Drivers:</h4>
+                    <ul class="list-disc list-inside">${engagementDriversListContent.innerHTML}</ul>`;
+                htmlSlides.push(slideEl);
+            }
+            
+            if (currentCsvType === 'content' && topPostsContainerContent.querySelector('.post-card-wrapper')) {
+                let { slideEl, contentDiv } = createHtmlSlideEl("Top Performing Posts Highlights", "Showcases your best-performing posts based on various metrics, indicating what resonates most with your audience.");
+                const topPostsClone = topPostsContainerContent.cloneNode(true);
+                topPostsClone.querySelectorAll('.post-card-wrapper').forEach(wrapper => {
+                    wrapper.className = 'mb-4 p-4 border rounded-lg'; 
+                });
+                topPostsClone.querySelectorAll('.post-card-link').forEach(link => {
+                     link.outerHTML = link.innerHTML; 
+                });
+                 topPostsClone.querySelectorAll('.post-card').forEach(card => {
+                    card.classList.remove('transform', 'hover:translate-y-[-5px]', 'hover:shadow-lg'); 
+                });
+                contentDiv.appendChild(topPostsClone);
+                htmlSlides.push(slideEl);
+            }
+
+            if (currentCsvType === 'overview' && overviewSummaryCards.querySelector('.metric-card')) {
+                 let { slideEl, contentDiv } = createHtmlSlideEl("Account Overview Analytics", "Provides a high-level view of account performance, including key summary metrics. Detailed daily data is available in the main report view.");
+                 const summaryCardsClone = overviewSummaryCards.cloneNode(true);
+                 summaryCardsClone.querySelectorAll('.metric-card').forEach(card => {
+                    card.classList.remove('transform', 'hover:translate-y-[-5px]', 'hover:shadow-lg'); 
+                 });
+                 contentDiv.appendChild(summaryCardsClone);
+                 htmlSlides.push(slideEl);
+            }
+            
+            const dynamicInsightSections = [
+                {bodyId: 'contentThemesBody', title: 'Key Content Themes', explainer: "Dominant themes identified from the textual content of your posts."},
+                {bodyId: 'keyObservationsBody', title: 'Key Observations & Potential Insights', explainer: "Data-driven observations from the performance metrics."},
+                {bodyId: 'conclusionBody', title: 'Conclusion', explainer: "A summary based on the analyzed themes and observations."}
+            ];
+
+            dynamicInsightSections.forEach(sectionData => {
+                const sectionBodyElement = document.getElementById(sectionData.bodyId);
+                if (sectionBodyElement && sectionBodyElement.innerHTML.trim() !== '' && !sectionBodyElement.querySelector('.placeholder-text')) {
+                    let { slideEl, contentDiv } = createHtmlSlideEl(sectionData.title, sectionData.explainer);
+                    const contentToClone = sectionBodyElement.cloneNode(true);
+                    const placeholder = contentToClone.querySelector('.placeholder-text');
+                    if(placeholder) placeholder.remove();
+                    
+                    contentDiv.appendChild(contentToClone);
+                    htmlSlides.push(slideEl);
+                }
+            });
+
+
+            htmlSlides.forEach(slide => slideContentArea.appendChild(slide));
+        }
+
+        // --- PNG Download Functions ---
+        function downloadSectionAsPng(sectionId, sectionTitle) {
+            const originalSectionElement = document.getElementById(sectionId);
+            if (!originalSectionElement) {
+                console.error(`Section with ID '${sectionId}' not found for PNG download.`);
+                if(uploadStatus) {
+                    uploadStatus.textContent = `Error: Could not find section to download.`;
+                    uploadStatus.style.color = 'red';
                 }
                 return;
             }
+            if (typeof html2canvas === 'undefined') {
+                console.error("html2canvas library is not loaded. Cannot download PNG.");
+                 if(uploadStatus) {
+                     uploadStatus.textContent = "Error: Image capture library not loaded. Cannot download PNG.";
+                     uploadStatus.style.color = 'red';
+                 }
+                return;
+            }
 
-            // Retry mechanism for PptxGenJS availability
-            const attemptPptxGeneration = (retryCount = 0) => {
-                console.log(`Attempting PPTX generation (Retry: ${retryCount}). typeof PptxGenJS:`, typeof PptxGenJS);
-                console.log('Checking parsedCsvData. Length:', parsedCsvData ? parsedCsvData.length : 'null or undefined');
+            if(uploadStatus) {
+                uploadStatus.textContent = `Generating PNG for ${sectionTitle}...`;
+                uploadStatus.style.color = 'inherit';
+            }
 
-                if (typeof PptxGenJS === 'undefined') {
-                    if (retryCount < 5) { // Retry up to 5 times (e.g., 500ms total if 100ms delay)
-                        console.warn(`PptxGenJS is undefined. Retrying in 100ms... (Retry ${retryCount + 1})`);
-                        setTimeout(() => attemptPptxGeneration(retryCount + 1), 100);
-                        return;
-                    }
-                    console.error("CRITICAL: PptxGenJS library is still undefined after retries. Cannot generate PPTX.");
-                    if (uploadStatus) {
-                        uploadStatus.textContent = "Error: PowerPoint library (PptxGenJS) not loaded or initialized. Check console.";
-                        uploadStatus.style.color = 'red';
-                    }
-                     if (uploadStatus && !uploadStatus.textContent.includes("Failed to load PowerPoint library") && !document.body.textContent.includes("Error: Failed to load PowerPoint library")) {
-                         console.error("PptxGenJS script might appear loaded (no onerror event on script tag) but failed to initialize globally. This is an unusual state possibly due to sandbox restrictions on script execution/initialization.");
+            // 1. Clone the section to avoid modifying the original
+            const clonedSection = originalSectionElement.cloneNode(true);
+
+            // 2. Remove the title wrapper (which contains the button and title) from the clone
+            const titleWrapperInClone = clonedSection.querySelector('.section-title-wrapper');
+            if (titleWrapperInClone) {
+                titleWrapperInClone.remove();
+            }
+            
+            // 3. For individual post analysis, we only want the details container if it exists and has content
+            let elementToCapture = clonedSection; // Default to the modified clone
+            if (sectionId === "individual-post-analysis") {
+                const detailsContainerClone = clonedSection.querySelector('#individualPostDetailsContainer');
+                if (detailsContainerClone && detailsContainerClone.innerHTML.trim() !== '' && !detailsContainerClone.querySelector('.placeholder-text')) {
+                    elementToCapture = detailsContainerClone;
+                } else { // If no details, don't download an empty box or placeholder
+                    if(uploadStatus) {
+                        uploadStatus.textContent = `No post details to download for ${sectionTitle}.`;
+                        uploadStatus.style.color = 'orange';
                     }
                     return;
                 }
-                
-                if (!parsedCsvData || parsedCsvData.length === 0) {
-                    console.error("PPTX Generation Pre-check FAILED: parsedCsvData is empty.");
-                    if (uploadStatus) {
-                        uploadStatus.textContent = "No data loaded. Please load a CSV file first.";
-                        uploadStatus.style.color = 'red';
-                    }
-                    return;
+            }
+
+
+            // 4. Prepare the elementToCapture for rendering (off-screen)
+            //    This helps html2canvas calculate layout correctly, especially for elements not fully in view.
+            elementToCapture.style.position = 'absolute';
+            elementToCapture.style.left = '-9999px';
+            elementToCapture.style.top = '-9999px';
+            // Ensure the element is temporarily added to the DOM if it's not already part of it (e.g. if detailsContainerClone was used)
+            // This is only necessary if elementToCapture is not already in the DOM.
+            // Since clonedSection is not in the DOM, and elementToCapture might be a child of it,
+            // we must append the top-level element we are capturing (elementToCapture)
+            document.body.appendChild(elementToCapture);
+
+
+            html2canvas(elementToCapture, { 
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: null, // For transparent background
+                scrollX: 0,
+                scrollY: 0,
+                width: elementToCapture.scrollWidth, // Capture full width of the targeted content
+                height: elementToCapture.scrollHeight, // Capture full height of the targeted content
+                logging: true 
+            }).then(canvas => {
+                const dataUrl = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                const safeChannelName = (currentChannelName || "Report").replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                const safeSectionTitle = sectionTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                link.download = `${safeChannelName}_${safeSectionTitle}.png`;
+                link.href = dataUrl;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                if(uploadStatus){
+                    uploadStatus.textContent = `PNG for ${sectionTitle} downloaded.`;
+                    uploadStatus.style.color = 'green';
                 }
-                
-                console.log('Starting PPTX generation...');
-                if (uploadStatus) {
-                    uploadStatus.textContent = "Generating slide deck...";
-                    uploadStatus.style.color = 'inherit';
+            }).catch(error => {
+                console.error(`Error generating PNG for ${sectionId}:`, error);
+                if(uploadStatus) {
+                    uploadStatus.textContent = `Error generating PNG for ${sectionTitle}. Check console.`;
+                    uploadStatus.style.color = 'red';
                 }
-
-                try {
-                    let pptx = new PptxGenJS();
-                    pptx.layout = 'LAYOUT_16X9'; 
-                    const dateRangeStr = extractDateRange();
-
-                    console.log('Adding title slide...');
-                    let titleSlide = pptx.addSlide();
-                    titleSlide.background = { color: "F1F1F1" };
-                    titleSlide.addText(`@IntersectMBO Report`, { x: 0.5, y: 2.0, w: '90%', h: 1, fontSize: 44, bold: true, color: '0077C8', align: pptx.AlignH.center });
-                    titleSlide.addText(dateRangeStr, { x: 0.5, y: 3.0, w: '90%', h: 0.75, fontSize: 28, color: '363636', align: pptx.AlignH.center });
-                    titleSlide.addText(`Generated: ${new Date().toLocaleDateString()}`, { x: 0.5, y: 6.5, w: '90%', h: 0.5, fontSize: 10, color: '7F7F7F', align: pptx.AlignH.right });
-                    console.log('Title slide added.');
-
-                    if (currentCsvType === 'content') {
-                        console.log('Processing content CSV slides...');
-                        if (metricsTableBodyContent.querySelectorAll('tr').length > 1) { 
-                            console.log('Adding Content Performance Metrics slide...');
-                            addSectionSlide(pptx, "Content Performance Metrics", "This slide summarizes the overall performance of your posts, showing total and average values for key metrics.", (slide, pptxInstance) => {
-                                let tableData = [];
-                                const headerCells = Array.from(document.getElementById('metricsTableContent').querySelectorAll('thead th')).map(th => th.textContent.replace('Total', 'Total ').replace('Average per Post', 'Avg. /Post').trim());
-                                tableData.push(headerCells.map(header => ({ text: header, options: { bold: true, fill: 'E5E7EB', color: '374151' } })));
-                                metricsTableBodyContent.querySelectorAll('tr').forEach(row => {
-                                    const cells = Array.from(row.querySelectorAll('td')).map(td => td.textContent.trim());
-                                    if (cells.length === headerCells.length) tableData.push(cells);
-                                });
-                                if (tableData.length > 1) slide.addTable(tableData, { x: 0.5, y: 1.5, w: 9, autoPage: true, rowH: 0.3, colW: [4, 2.5, 2.5], border: { type: 'solid', pt: 1, color: 'D1D5DB' }, fontFace: "Arial", fontSize: 10, valign: 'middle', align: pptxInstance.AlignH.left });
-                            });
-                            console.log('Content Performance Metrics slide added.');
-                        }
-                        if (engagementRateDisplayContent.textContent !== 'N/A') {
-                            console.log('Adding Content Engagement Insights slide...');
-                            addSectionSlide(pptx, "Content Engagement Insights", "Highlights the overall engagement rate and lists primary drivers of user interaction.", (slide, pptxInstance) => {
-                                slide.addText(`Overall Engagement Rate: ${engagementRateDisplayContent.textContent}`, { x: 0.5, y: 1.5, w: '90%', h: 0.5, fontSize: 16, bold: true });
-                                let driversText = "Key Engagement Drivers:\n";
-                                engagementDriversListContent.querySelectorAll('li').forEach(li => { if (!li.classList.contains('placeholder-text')) driversText += `• ${li.textContent}\n`; });
-                                slide.addText(driversText, { x: 0.5, y: 2.2, w: '90%', h: 2, fontSize: 12, lineSpacing: 20 });
-                            });
-                            console.log('Content Engagement Insights slide added.');
-                        }
-                        if (topPostsContainerContent.querySelector('.post-card-wrapper')) { 
-                            console.log('Adding Top Performing Posts slide...');
-                            addSectionSlide(pptx, "Top Performing Posts Highlights", "Showcases your best-performing posts based on various metrics, indicating what resonates most with your audience.", (slide, pptxInstance) => {
-                                let yPos = 1.5;
-                                const postCards = topPostsContainerContent.querySelectorAll('.post-card-wrapper');
-                                postCards.forEach((cardWrapper, index) => {
-                                    if (index >= 4) return; 
-                                    const card = cardWrapper.querySelector('.post-card');
-                                    if (card) {
-                                        const title = card.querySelector('h4') ? card.querySelector('h4').textContent : "Top Post";
-                                        const postText = card.querySelector('.leading-relaxed') ? card.querySelector('.leading-relaxed').textContent : "N/A";
-                                        const metricText = card.querySelector('.text-purple-600, .text-purple-400') ? card.querySelector('.text-purple-600, .text-purple-400').textContent : "";
-                                        slide.addText(`${title} (${metricText})`, { x: 0.5, y: yPos, w:'90%', h:0.3, fontSize: 12, bold:true}); yPos += 0.35;
-                                        slide.addText(postText.substring(0,250) + (postText.length > 250 ? '...' : ''), { x:0.7, y:yPos, w:'85%', h:0.6, fontSize:10 }); yPos += 0.7;
-                                        if(yPos > 5) return; 
-                                    }
-                                });
-                            });
-                            console.log('Top Performing Posts slide added.');
-                        }
-                    } else if (currentCsvType === 'overview') {
-                        console.log('Processing overview CSV slides...');
-                        if (overviewSummaryCards.querySelector('.metric-card')) {
-                            console.log('Adding Account Overview Analytics slide...');
-                            addSectionSlide(pptx, "Account Overview Analytics", "Provides a high-level view of account performance, including key summary metrics. Daily data table is available in the web view.", (slide, pptxInstance) => {
-                                let yPos = 1.5;
-                                const cards = overviewSummaryCards.querySelectorAll('.metric-card');
-                                cards.forEach((card, idx) => {
-                                    if (idx >= 6) return; 
-                                    const label = card.querySelector('.metric-label').textContent;
-                                    const value = card.querySelector('.metric-value').textContent;
-                                    slide.addText(`• ${label}: ${value}`, {x:0.5, y:yPos, w: '90%', h: 0.3, fontSize: 12}); yPos += 0.4;
-                                });
-                                slide.addText("Detailed daily data is available in the main report table.", {x:0.5, y: yPos + 0.5, w:'90%', h:0.3, fontSize:10, italic:true});
-                            });
-                            console.log('Account Overview Analytics slide added.');
-                        }
-                    }
-
-                    console.log('Processing interpretive slides...');
-                    const interpretiveSections = [
-                        { id: 'content-themes', title: "Key Content Themes (Sample Data Insight)", explainer: "This slide outlines major content themes observed in the sample data, offering a baseline for content pillars." },
-                        { id: 'key-observations', title: "Key Observations & Potential Insights (Sample Data Insight)", explainer: "Based on sample data, this highlights significant observations that could inform content strategy." },
-                        { id: 'conclusion', title: "Conclusion (Sample Data Insight)", explainer: "Offers a concluding summary based on the analysis of sample data, summarizing performance and key takeaways." }
-                    ];
-                    interpretiveSections.forEach(sectionInfo => {
-                        const sectionElement = document.getElementById(sectionInfo.id);
-                        if (sectionElement) {
-                            console.log(`Adding ${sectionInfo.title} slide...`);
-                            addSectionSlide(pptx, sectionInfo.title, sectionInfo.explainer, (slide, pptxInstance) => {
-                                const listItems = sectionElement.querySelectorAll('ul li'); const paragraph = sectionElement.querySelector('p');
-                                let contentText = "";
-                                if (listItems.length > 0) listItems.forEach(li => contentText += `• ${li.textContent.trim()}\n`);
-                                else if (paragraph) contentText = paragraph.textContent.trim();
-                                slide.addText(contentText, { x: 0.5, y: 1.5, w: '90%', h: 4, fontSize: 12, lineSpacing: 20 });
-                            });
-                            console.log(`${sectionInfo.title} slide added.`);
-                        }
-                    });
-                    
-                    const filename = `IntersectMBO_Report_${new Date().toISOString().slice(0,10).replace(/-/g,'')}.pptx`;
-                    console.log(`Attempting to download file: ${filename}`);
-                    pptx.writeFile({ fileName: filename })
-                        .then(fileNameResult => { 
-                            console.log(`PPTX file ${fileNameResult} generation and download initiated.`);
-                            if (uploadStatus) { uploadStatus.textContent = "Slide deck download started."; uploadStatus.style.color = 'green';}
-                        })
-                        .catch(err => {
-                            console.error("Error during pptx.writeFile (file download):", err);
-                            if (uploadStatus) { uploadStatus.textContent = "Error downloading slide deck. Check console and browser permissions."; uploadStatus.style.color = 'red';}
-                        });
-                } catch (error) {
-                    console.error("Error during PPTX generation process:", error);
-                    if (uploadStatus) { uploadStatus.textContent = "Error during slide deck generation. Check console."; uploadStatus.style.color = 'red';}
+            }).finally(() => {
+                // Clean up the appended elementToCapture from the body
+                if (elementToCapture.parentElement === document.body) {
+                     document.body.removeChild(elementToCapture);
                 }
-            }; // End of attemptPptxGeneration function
+            });
+        }
 
-            // Initial call to attempt generation
-            attemptPptxGeneration();
-        } // End of generatePptxReport
+        function setupPngDownloadButtons() {
+            document.querySelectorAll('.download-png-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const sectionId = this.dataset.sectionId;
+                    const sectionElement = document.getElementById(sectionId);
+                    // Get title from the actual h2 inside the title wrapper, not from the button's parent
+                    const sectionTitleElement = sectionElement ? sectionElement.querySelector('.section-title-wrapper .section-title') : null;
+                    const sectionTitleText = sectionTitleElement ? sectionTitleElement.textContent.trim() : sectionId.replace(/-/g, ' '); // Fallback title
+                    downloadSectionAsPng(sectionId, sectionTitleText);
+                });
+            });
+        }
+        
+        function enablePngDownloadButtons() {
+            document.querySelectorAll('.download-png-button').forEach(button => {
+                const sectionId = button.dataset.sectionId;
+                if (sectionId === 'individual-post-analysis') {
+                    button.disabled = (postSelectorDropdown.value === "" || !individualPostDetailsContainer.innerHTML.trim() || individualPostDetailsContainer.querySelector('.placeholder-text')); 
+                } else {
+                     // Enable if the section is visible and not just a placeholder
+                    const sectionElement = document.getElementById(sectionId);
+                    const placeholder = sectionElement ? sectionElement.querySelector('.placeholder-text') : true; // Assume placeholder if no element
+                    button.disabled = !sectionElement || (placeholder && sectionElement.contains(placeholder));
+                }
+            });
+        }
+
+        function disablePngDownloadButtons() {
+             document.querySelectorAll('.download-png-button').forEach(button => {
+                button.disabled = true;
+            });
+        }
+        
+        setupPngDownloadButtons();
+
 
         resetUI(); 
         document.getElementById('currentYear').textContent = new Date().getFullYear();
