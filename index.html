@@ -6,7 +6,9 @@
     <title>IntersectMBO - Interactive Account Analytics Report</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.min.js"
+            onerror="console.error('CRITICAL ERROR: Failed to load PptxGenJS script. PowerPoint generation will not work. Check network, CDN (cdnjs.cloudflare.com), or browser/sandbox script restrictions.'); if(document.getElementById('uploadStatus')) { document.getElementById('uploadStatus').textContent = 'Error: Failed to load PowerPoint library. Please check internet or script blockers.'; document.getElementById('uploadStatus').style.color = 'red'; }">
+    </script>
     <style>
         /* Base styles */
         body {
@@ -470,9 +472,11 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOM fully loaded and parsed'); 
+
         let parsedCsvData = []; 
-        let currentCsvType = null; // 'content' or 'overview'
-        let currentCsvHeaders = []; // To store headers of the loaded CSV
+        let currentCsvType = null; 
+        let currentCsvHeaders = []; 
 
         const themeToggle = document.getElementById('theme-toggle');
         const body = document.body;
@@ -500,7 +504,6 @@
         const dataPeriodDisplay = document.getElementById('data-period-display');
         const interpretiveNotice = document.getElementById('interpretiveNotice');
 
-        // Content Analytics Elements
         const contentAnalyticsSections = document.getElementById('contentAnalyticsSections');
         const metricsTableBodyContent = document.getElementById('metricsTableBodyContent');
         const engagementRateDisplayContent = document.getElementById('engagementRateDisplayContent');
@@ -509,12 +512,10 @@
         const postSelectorDropdown = document.getElementById('postSelectorDropdown');
         const individualPostDetailsContainer = document.getElementById('individualPostDetailsContainer');
         
-        // Account Overview Elements
         const accountOverviewSection = document.getElementById('accountOverviewSection');
         const overviewSummaryCards = document.getElementById('overviewSummaryCards');
         const overviewDailyTableHead = document.getElementById('overviewDailyTableHead');
         const overviewDailyTableBody = document.getElementById('overviewDailyTableBody');
-
 
         const CONTENT_METRIC_COLUMNS = ['Impressions', 'Likes', 'Engagements', 'Bookmarks', 'Shares', 'New follows', 'Replies', 'Reposts', 'Profile visits', 'Detail Expands', 'URL Clicks', 'Hashtag Clicks', 'Permalink Clicks'];
         const OVERVIEW_METRIC_COLUMNS = ['Impressions', 'Likes', 'Engagements', 'Bookmarks', 'Shares', 'New follows', 'Unfollows', 'Replies', 'Reposts', 'Profile visits', 'Create Post', 'Video views', 'Media views'];
@@ -531,6 +532,7 @@
         });
 
         loadCsvButton.addEventListener('click', () => {
+            console.log('Load CSV button clicked'); 
             if (csvFileInput.files.length === 0) {
                 uploadStatus.textContent = 'Please choose a CSV file first.';
                 uploadStatus.style.color = 'red';
@@ -545,7 +547,7 @@
 
             uploadStatus.textContent = 'Processing...';
             uploadStatus.style.color = 'inherit'; 
-            downloadPptxButton.disabled = true; 
+            if(downloadPptxButton) downloadPptxButton.disabled = true; 
 
             const reader = new FileReader();
             reader.onload = function(event) {
@@ -565,7 +567,7 @@
                     uploadStatus.textContent = `Successfully loaded and processed '${file.name}' (${currentCsvType} data).`;
                     uploadStatus.style.color = 'green';
                     interpretiveNotice.style.display = 'block'; 
-                    downloadPptxButton.disabled = false; 
+                    if(downloadPptxButton) downloadPptxButton.disabled = false; 
                 } catch (error) {
                     console.error("Error processing CSV:", error);
                     parsedCsvData = []; 
@@ -575,7 +577,7 @@
                     uploadStatus.style.color = 'red';
                     interpretiveNotice.style.display = 'none'; 
                     resetUI(); 
-                    downloadPptxButton.disabled = true;
+                    if(downloadPptxButton) downloadPptxButton.disabled = true;
                 }
             };
             reader.onerror = function() {
@@ -586,16 +588,19 @@
                 currentCsvHeaders = [];
                 interpretiveNotice.style.display = 'none';
                 resetUI();
-                downloadPptxButton.disabled = true;
+                if(downloadPptxButton) downloadPptxButton.disabled = true;
             };
             reader.readAsText(file);
         });
         
-        downloadPptxButton.addEventListener('click', generatePptxReport);
-
+        if (downloadPptxButton) {
+            console.log('Attempting to add event listener to Download PPTX button.'); 
+            downloadPptxButton.addEventListener('click', generatePptxReport);
+        } else {
+            console.error('Download PPTX Button not found in DOM!'); 
+        }
 
         function resetUI() {
-            // Reset content analytics sections
             metricsTableBodyContent.innerHTML = '<tr><td colspan="3" class="px-6 py-10 text-center text-muted placeholder-text">Upload a Content CSV.</td></tr>';
             engagementRateDisplayContent.textContent = "N/A";
             engagementDriversListContent.innerHTML = '<li class="text-muted placeholder-text">Upload a Content CSV.</li>';
@@ -604,16 +609,13 @@
             postSelectorDropdown.disabled = true;
             individualPostDetailsContainer.innerHTML = '<p class="text-muted placeholder-text">Upload a Content CSV.</p>';
             contentAnalyticsSections.classList.add('hidden-section');
-
-            // Reset overview analytics sections
             overviewSummaryCards.innerHTML = '<p class="text-muted placeholder-text col-span-full">Upload an Overview CSV.</p>';
             overviewDailyTableHead.innerHTML = '';
             overviewDailyTableBody.innerHTML = '<tr><td colspan="10" class="px-6 py-10 text-center text-muted placeholder-text">Upload an Overview CSV.</td></tr>';
             accountOverviewSection.classList.add('hidden-section');
             dataPeriodDisplay.textContent = "Upload a CSV file to view analytics.";
-            downloadPptxButton.disabled = true; 
+            if(downloadPptxButton) downloadPptxButton.disabled = true; 
         }
-
 
         function detectCsvType(headers) {
             const normalizedHeaders = headers.map(normalizeHeader);
@@ -622,24 +624,17 @@
             const hasDate = normalizedHeaders.includes(normalizeHeader('Date'));
             const hasUnfollows = normalizedHeaders.includes(normalizeHeader('Unfollows'));
             const hasCreatePost = normalizedHeaders.includes(normalizeHeader('Create Post'));
-
-            if (hasPostId && hasPostText) {
-                return 'content';
-            } else if (hasDate && (hasUnfollows || hasCreatePost)) { 
-                return 'overview';
-            }
+            if (hasPostId && hasPostText) return 'content';
+            if (hasDate && (hasUnfollows || hasCreatePost)) return 'overview';
             return null; 
         }
-
 
         function parseCSV(csvText) { 
             const lines = csvText.split(/\r\n|\n/).filter(line => line.trim() !== ''); 
             if (lines.length < 2) return []; 
-
             const rawHeaders = lines[0].split(',');
             const headers = rawHeaders.map(h => h.trim());
             currentCsvHeaders = headers; 
-            
             const data = [];
             for (let i = 1; i < lines.length; i++) {
                 const values = [];
@@ -649,32 +644,26 @@
                     const char = lines[i][j];
                     if (char === '"') {
                         if (inQuotes && j + 1 < lines[i].length && lines[i][j+1] === '"') {
-                            currentVal += '"';
-                            j++; 
-                            continue;
+                            currentVal += '"'; j++; continue;
                         }
                         inQuotes = !inQuotes;
                     } else if (char === ',' && !inQuotes) {
-                        values.push(currentVal.trim());
-                        currentVal = '';
+                        values.push(currentVal.trim()); currentVal = '';
                     } else {
                         currentVal += char;
                     }
                 }
                 values.push(currentVal.trim());
-
                 if (values.length === headers.length) {
                     const row = {};
                     headers.forEach((header, index) => {
                         let val = values[index];
-                        if (val.startsWith('"') && val.endsWith('"')) {
-                            val = val.substring(1, val.length - 1);
-                        }
+                        if (val.startsWith('"') && val.endsWith('"')) val = val.substring(1, val.length - 1);
                         row[header] = val.replace(/""/g, '"');
                     });
                     data.push(row);
                 } else {
-                    console.warn(`Skipping malformed row ${i+1}: expected ${headers.length} values, got ${values.length}. Line: ${lines[i]}`);
+                    console.warn(`Skipping malformed row ${i+1}: expected ${headers.length}, got ${values.length}. Line: ${lines[i]}`);
                 }
             }
             return data;
@@ -696,7 +685,6 @@
         function displayContentAnalytics(data) {
             const numPosts = data.length;
             const headers = currentCsvHeaders;
-
             const totals = {};
             CONTENT_METRIC_COLUMNS.forEach(col => totals[col] = 0);
             data.forEach(row => {
@@ -708,7 +696,6 @@
                     }
                 });
             });
-
             metricsTableBodyContent.innerHTML = ''; 
             const newRowPosts = document.createElement('tr');
             newRowPosts.innerHTML = `<td class="px-6 py-4 whitespace-nowrap font-medium">Posts Analyzed</td><td class="px-6 py-4 whitespace-nowrap">${numPosts.toLocaleString()}</td><td class="px-6 py-4 whitespace-nowrap">-</td>`;
@@ -717,28 +704,18 @@
                 const total = totals[colName] || 0;
                 const average = numPosts > 0 ? (total / numPosts).toFixed(2) : '0.00';
                 const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap">${colName}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">${total.toLocaleString()}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">${average}</td>`;
+                row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap">${colName}</td><td class="px-6 py-4 whitespace-nowrap">${total.toLocaleString()}</td><td class="px-6 py-4 whitespace-nowrap">${average}</td>`;
                 metricsTableBodyContent.appendChild(row);
             });
             initializeTableSorting(document.getElementById('metricsTableContent'));
-
             const totalImpressions = totals['Impressions'] || 0;
             const totalEngagements = totals['Engagements'] || 0;
             engagementRateDisplayContent.textContent = totalImpressions > 0 ? ((totalEngagements / totalImpressions) * 100).toFixed(2) + '%' : 'N/A';
-            engagementDriversListContent.innerHTML = `
-                <li>Likes: ${(totals['Likes'] || 0).toLocaleString()}</li>
-                <li>Reposts: ${(totals['Reposts'] || 0).toLocaleString()}</li>
-                <li>Detail Expands: ${(totals['Detail Expands'] || 0).toLocaleString()}</li>`;
-
+            engagementDriversListContent.innerHTML = `<li>Likes: ${(totals['Likes'] || 0).toLocaleString()}</li><li>Reposts: ${(totals['Reposts'] || 0).toLocaleString()}</li><li>Detail Expands: ${(totals['Detail Expands'] || 0).toLocaleString()}</li>`;
             topPostsContainerContent.innerHTML = ''; 
             const topPostMetricsContent = [
-                { name: 'Engagements', title: 'Top Post by Engagements' },
-                { name: 'Impressions', title: 'Top Post by Impressions' },
-                { name: 'Likes', title: 'Top Post by Likes' },
-                { name: 'Reposts', title: 'Top Post by Reposts' }
+                { name: 'Engagements', title: 'Top Post by Engagements' }, { name: 'Impressions', title: 'Top Post by Impressions' },
+                { name: 'Likes', title: 'Top Post by Likes' }, { name: 'Reposts', title: 'Top Post by Reposts' }
             ];
             if (numPosts === 0) {
                  topPostsContainerContent.innerHTML = `<p class="text-muted placeholder-text col-span-full">No data to determine top posts.</p>`;
@@ -756,12 +733,9 @@
         function displayOverviewAnalytics(data) {
             const numDays = data.length;
             const headers = currentCsvHeaders;
-
             const overviewTotals = {};
             OVERVIEW_METRIC_COLUMNS.forEach(col => overviewTotals[col] = 0);
-            let totalNewFollows = 0;
-            let totalUnfollows = 0;
-
+            let totalNewFollows = 0, totalUnfollows = 0;
             data.forEach(dayData => {
                 OVERVIEW_METRIC_COLUMNS.forEach(colName => {
                     let actualColName = headers.find(h => normalizeHeader(h) === normalizeHeader(colName));
@@ -775,9 +749,7 @@
                     }
                 });
             });
-            
             const netFollowerGrowth = totalNewFollows - totalUnfollows;
-
             overviewSummaryCards.innerHTML = `
                 ${createOverviewMetricCard('Total Impressions', (overviewTotals['Impressions'] || 0).toLocaleString())}
                 ${createOverviewMetricCard('Total Engagements', (overviewTotals['Engagements'] || 0).toLocaleString())}
@@ -786,9 +758,7 @@
                 ${createOverviewMetricCard('Avg Daily Impressions', numDays > 0 ? ((overviewTotals['Impressions'] || 0) / numDays).toFixed(0).toLocaleString() : 'N/A')}
                 ${createOverviewMetricCard('Avg Daily Profile Visits', numDays > 0 ? ((overviewTotals['Profile visits'] || 0) / numDays).toFixed(0).toLocaleString() : 'N/A')}
                 ${createOverviewMetricCard('Total Video Views', (overviewTotals['Video views'] || 0).toLocaleString())}
-                ${createOverviewMetricCard('Total Media Views', (overviewTotals['Media views'] || 0).toLocaleString())}
-            `;
-
+                ${createOverviewMetricCard('Total Media Views', (overviewTotals['Media views'] || 0).toLocaleString())}`;
             overviewDailyTableHead.innerHTML = ''; 
             const headerRow = document.createElement('tr');
             headers.forEach(headerText => {
@@ -796,14 +766,11 @@
                 th.className = "px-6 py-3 text-left text-xs font-medium uppercase tracking-wider";
                 th.textContent = headerText;
                 th.dataset.sortCol = headers.indexOf(headerText);
-                if (headerText.toLowerCase() !== 'date') { 
-                     th.dataset.sortType = 'number';
-                }
+                if (headerText.toLowerCase() !== 'date') th.dataset.sortType = 'number';
                 th.innerHTML += ' <span class="sort-icon"></span>';
                 headerRow.appendChild(th);
             });
             overviewDailyTableHead.appendChild(headerRow);
-            
             overviewDailyTableBody.innerHTML = '';
             if (numDays === 0) {
                 overviewDailyTableBody.innerHTML = `<tr><td colspan="${headers.length}" class="px-6 py-10 text-center text-muted">No daily data available.</td></tr>`;
@@ -829,23 +796,17 @@
         function createOverviewMetricCard(label, value, valueColorClass = '') {
             const currentTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
             const valueBaseColorClass = currentTheme === 'dark' ? 'text-blue-400' : 'text-blue-600';
-            return `
-                <div class="metric-card text-center">
-                    <div class="metric-value ${valueColorClass || valueBaseColorClass}">${value}</div>
-                    <div class="metric-label text-muted">${label}</div>
-                </div>`;
+            return `<div class="metric-card text-center"><div class="metric-value ${valueColorClass || valueBaseColorClass}">${value}</div><div class="metric-label text-muted">${label}</div></div>`;
         }
         
         function findTopPost(data, metricHeaderKey, allHeaders) {
             if (!metricHeaderKey || data.length === 0) return null;
-            let topPost = null; 
-            let maxMetricValue = -Infinity;
+            let topPost = null, maxMetricValue = -Infinity;
             data.forEach(post => {
                  if (post.hasOwnProperty(metricHeaderKey)) { 
                     const metricValue = parseFloat(String(post[metricHeaderKey] || '0').replace(/,/g, ''));
                     if (!isNaN(metricValue) && metricValue > maxMetricValue) {
-                        maxMetricValue = metricValue;
-                        topPost = post;
+                        maxMetricValue = metricValue; topPost = post;
                     }
                 }
             });
@@ -857,57 +818,34 @@
         }
 
         function createPostCard(postData, title, metricName, metricValue, allHeaders) {
-            const cardWrapper = document.createElement('div'); 
-            cardWrapper.className = 'post-card-wrapper'; 
-            const cardContentDiv = document.createElement('div');
-            cardContentDiv.className = 'post-card'; 
-
+            const cardWrapper = document.createElement('div'); cardWrapper.className = 'post-card-wrapper'; 
+            const cardContentDiv = document.createElement('div'); cardContentDiv.className = 'post-card'; 
             if (!postData || !postData.post) {
-                cardContentDiv.innerHTML = `
-                    <h4 class="font-semibold text-blue-600 dark:text-blue-400 mb-2">${title}</h4>
-                    <p class="text-sm text-muted italic">Data for this metric is not available or column not found in CSV.</p>
-                `;
-                cardWrapper.appendChild(cardContentDiv);
-                return cardWrapper;
+                cardContentDiv.innerHTML = `<h4 class="font-semibold text-blue-600 dark:text-blue-400 mb-2">${title}</h4><p class="text-sm text-muted italic">Data for this metric is not available or column not found in CSV.</p>`;
+                cardWrapper.appendChild(cardContentDiv); return cardWrapper;
             }
-
             const { post } = postData;
             const postIdColHeaderKey = allHeaders.find(h => normalizeHeader(h) === normalizeHeader('Post id')) || allHeaders.find(h => normalizeHeader(h) === normalizeHeader('ID'));
             const postTextColHeaderKey = allHeaders.find(h => normalizeHeader(h) === normalizeHeader('Post text')) || allHeaders.find(h => normalizeHeader(h) === normalizeHeader('Text'));
             const impressionsColHeaderKey = allHeaders.find(h => normalizeHeader(h) === normalizeHeader('Impressions'));
             const engagementsColHeaderKey = allHeaders.find(h => normalizeHeader(h) === normalizeHeader('Engagements'));
             const postLinkColHeaderKey = allHeaders.find(h => normalizeHeader(h) === normalizeHeader('Post Link')) || allHeaders.find(h => normalizeHeader(h) === normalizeHeader('Link'));
-
             let postText = post[postTextColHeaderKey] || 'No text available';
             if (postText.length > 120) postText = postText.substring(0, 120) + '...';
-
             const displayMetricValue = (isNaN(metricValue) || metricValue === -Infinity) ? 'N/A' : metricValue.toLocaleString();
             const impressionsForContext = post[impressionsColHeaderKey] ? parseFloat(String(post[impressionsColHeaderKey] || '0').replace(/,/g, '')) : 'N/A';
             const engagementsForContext = post[engagementsColHeaderKey] ? parseFloat(String(post[engagementsColHeaderKey] || '0').replace(/,/g, '')) : 'N/A';
             const postUrl = post[postLinkColHeaderKey];
-
             cardContentDiv.innerHTML = `
-                <div class="post-card-content">
-                    <p class="text-xs text-muted mb-1">Post ID: ${post[postIdColHeaderKey] || 'N/A'}</p>
-                    <h4 class="font-semibold text-blue-600 dark:text-blue-400 mb-2">${title}</h4>
-                    <p class="text-sm mb-3 leading-relaxed">${postText}</p>
-                </div>
-                <div class="mt-auto"> 
-                    <p class="text-sm font-medium text-purple-600 dark:text-purple-400 mb-1">${metricName}: ${displayMetricValue}</p>
+                <div class="post-card-content"><p class="text-xs text-muted mb-1">Post ID: ${post[postIdColHeaderKey] || 'N/A'}</p><h4 class="font-semibold text-blue-600 dark:text-blue-400 mb-2">${title}</h4><p class="text-sm mb-3 leading-relaxed">${postText}</p></div>
+                <div class="mt-auto"><p class="text-sm font-medium text-purple-600 dark:text-purple-400 mb-1">${metricName}: ${displayMetricValue}</p>
                     ${metricName !== 'Impressions' && impressionsForContext !== 'N/A' ? `<p class="text-xs text-green-600 dark:text-green-400">Impressions: ${impressionsForContext.toLocaleString()}</p>` : ''}
-                    ${metricName !== 'Engagements' && engagementsForContext !== 'N/A' ? `<p class="text-xs text-red-500 dark:text-red-400">Engagements: ${engagementsForContext.toLocaleString()}</p>` : ''}
-                </div>
-            `;
-            
+                    ${metricName !== 'Engagements' && engagementsForContext !== 'N/A' ? `<p class="text-xs text-red-500 dark:text-red-400">Engagements: ${engagementsForContext.toLocaleString()}</p>` : ''}</div>`;
             if (postUrl && (String(postUrl).startsWith('http://') || String(postUrl).startsWith('https://'))) {
                 const linkElement = document.createElement('a');
-                linkElement.href = postUrl;
-                linkElement.target = '_blank';
-                linkElement.rel = 'noopener noreferrer';
-                linkElement.className = 'post-card-link'; 
-                linkElement.appendChild(cardContentDiv); 
-                cardWrapper.appendChild(linkElement); 
-                cardWrapper.style.cursor = 'pointer'; 
+                linkElement.href = postUrl; linkElement.target = '_blank'; linkElement.rel = 'noopener noreferrer';
+                linkElement.className = 'post-card-link'; linkElement.appendChild(cardContentDiv); 
+                cardWrapper.appendChild(linkElement); cardWrapper.style.cursor = 'pointer'; 
             } else {
                 cardWrapper.appendChild(cardContentDiv); 
             }
@@ -915,43 +853,25 @@
         }
         
         function populatePostSelectorDropdown(data) {
-            postSelectorDropdown.innerHTML = ''; 
-            postSelectorDropdown.disabled = data.length === 0;
-
+            postSelectorDropdown.innerHTML = ''; postSelectorDropdown.disabled = data.length === 0;
             if (data.length === 0) {
                 postSelectorDropdown.innerHTML = '<option value="">No posts to display</option>';
-                individualPostDetailsContainer.innerHTML = '<p class="text-muted placeholder-text">Upload a Content CSV.</p>';
-                return;
+                individualPostDetailsContainer.innerHTML = '<p class="text-muted placeholder-text">Upload a Content CSV.</p>'; return;
             }
-            
-            const defaultOption = document.createElement('option');
-            defaultOption.value = "";
-            defaultOption.textContent = "Select a post to view details...";
+            const defaultOption = document.createElement('option'); defaultOption.value = ""; defaultOption.textContent = "Select a post to view details...";
             postSelectorDropdown.appendChild(defaultOption);
-
             const headers = currentCsvHeaders;
             const postIdKey = headers.find(h => normalizeHeader(h) === normalizeHeader('Post id')) || headers.find(h => normalizeHeader(h) === normalizeHeader('ID'));
             const postTextKey = headers.find(h => normalizeHeader(h) === normalizeHeader('Post text')) || headers.find(h => normalizeHeader(h) === normalizeHeader('Text'));
-
             data.forEach((post, index) => {
-                const idValue = post[postIdKey];
-                const textValue = post[postTextKey];
+                const idValue = post[postIdKey]; const textValue = post[postTextKey];
                 if ((!idValue || String(idValue).trim() === '') && (!textValue || String(textValue).trim() === '')) return; 
-
-                const option = document.createElement('option');
-                option.value = index; 
-                let displayText = "";
-                if (textValue && String(textValue).trim() !== '') {
-                    displayText = `${String(textValue).substring(0, 80)}...`;
-                } else if (idValue && String(idValue).trim() !== '') {
-                     displayText = `ID: ${idValue}`; 
-                } else { displayText = `Unnamed Post (Row ${index + 2})`; }
-                option.textContent = displayText;
-                postSelectorDropdown.appendChild(option);
+                const option = document.createElement('option'); option.value = index; 
+                let displayText = (textValue && String(textValue).trim() !== '') ? `${String(textValue).substring(0, 80)}...` : (idValue && String(idValue).trim() !== '') ? `ID: ${idValue}` : `Unnamed Post (Row ${index + 2})`;
+                option.textContent = displayText; postSelectorDropdown.appendChild(option);
             });
             if (postSelectorDropdown.options.length <= 1) { 
-                 postSelectorDropdown.options[0].textContent = "No identifiable posts found";
-                 postSelectorDropdown.disabled = true;
+                 postSelectorDropdown.options[0].textContent = "No identifiable posts found"; postSelectorDropdown.disabled = true;
             }
             individualPostDetailsContainer.innerHTML = '<p class="text-muted placeholder-text">Select a post to view details.</p>';
         }
@@ -960,25 +880,21 @@
             const selectedIndex = this.value;
             individualPostDetailsContainer.innerHTML = ''; 
             if (selectedIndex === "" || !parsedCsvData || parsedCsvData.length === 0 || currentCsvType !== 'content') {
-                individualPostDetailsContainer.innerHTML = '<p class="text-muted placeholder-text">Select a post to view details.</p>';
-                return;
+                individualPostDetailsContainer.innerHTML = '<p class="text-muted placeholder-text">Select a post to view details.</p>'; return;
             }
             const post = parsedCsvData[parseInt(selectedIndex)];
             if (!post) {
-                individualPostDetailsContainer.innerHTML = '<p class="text-red-500 placeholder-text">Error: Could not retrieve post details.</p>';
-                return;
+                individualPostDetailsContainer.innerHTML = '<p class="text-red-500 placeholder-text">Error: Could not retrieve post details.</p>'; return;
             }
-            const detailsHtml = [];
-            const headers = Object.keys(post);
+            const detailsHtml = []; const headers = Object.keys(post);
             const postLinkColHeaderKey = headers.find(h => normalizeHeader(h) === normalizeHeader('Post Link')) || headers.find(h => normalizeHeader(h) === normalizeHeader('Link'));
             headers.forEach(header => {
-                let value = post[header];
-                let displayItem = `<span class="detail-label">${header}:</span> <span>${value || 'N/A'}</span>`;
+                let value = post[header]; let displayItem;
                 if (header === postLinkColHeaderKey && (String(value).startsWith('http://') || String(value).startsWith('https://'))) {
                     displayItem = `<span class="detail-label">${header}:</span> <a href="${value}" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline">${value}</a>`;
                 } else if (normalizeHeader(header) === normalizeHeader('Post text') || normalizeHeader(header) === normalizeHeader('Text')) {
                     displayItem = `<div class="detail-label">${header}:</div><div class="post-text-display">${value || 'N/A'}</div>`;
-                } else { value = value || 'N/A'; displayItem = `<span class="detail-label">${header}:</span> <span>${value}</span>`; }
+                } else { displayItem = `<span class="detail-label">${header}:</span> <span>${value || 'N/A'}</span>`; }
                 detailsHtml.push(`<div class="detail-item">${displayItem}</div>`);
             });
             individualPostDetailsContainer.innerHTML = detailsHtml.join('');
@@ -986,57 +902,38 @@
 
         function initializeTableSorting(tableElement) {
             if (!tableElement) return;
-            const oldThead = tableElement.querySelector('thead');
-            if (!oldThead) return; 
-            const newThead = oldThead.cloneNode(true); 
-            oldThead.parentNode.replaceChild(newThead, oldThead); 
-
+            const oldThead = tableElement.querySelector('thead'); if (!oldThead) return; 
+            const newThead = oldThead.cloneNode(true); oldThead.parentNode.replaceChild(newThead, oldThead); 
             const headersToSort = newThead.querySelectorAll('th[data-sort-col]'); 
-            const tbody = tableElement.querySelector('tbody'); 
-            if (!tbody) return; 
-
+            const tbody = tableElement.querySelector('tbody'); if (!tbody) return; 
             headersToSort.forEach(header => {
                 header.addEventListener('click', () => { 
                     const columnIndex = parseInt(header.dataset.sortCol);
                     const sortType = header.dataset.sortType || 'string'; 
                     const currentSortOrder = header.dataset.sortOrder || 'asc'; 
                     const newSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
-                    
                     headersToSort.forEach(h => { 
                         const hIcon = h.querySelector('.sort-icon');
-                        if (h !== header && hIcon) { 
-                            hIcon.innerHTML = '';
-                            delete h.dataset.sortOrder;
-                        }
+                        if (h !== header && hIcon) { hIcon.innerHTML = ''; delete h.dataset.sortOrder; }
                     });
-
                     const iconElement = header.querySelector('.sort-icon');
-                    if (iconElement) { 
-                       iconElement.innerHTML = newSortOrder === 'asc' ? '<i class="fas fa-arrow-up"></i>' : '<i class="fas fa-arrow-down"></i>';
-                    }
+                    if (iconElement) iconElement.innerHTML = newSortOrder === 'asc' ? '<i class="fas fa-arrow-up"></i>' : '<i class="fas fa-arrow-down"></i>';
                     header.dataset.sortOrder = newSortOrder;
-
                     const rows = Array.from(tbody.querySelectorAll('tr'));
                     if(rows.length > 0 && rows[0].cells.length <= columnIndex) return;
-                    
                     rows.sort((rowA, rowB) => {
                         if(rowA.cells.length <= columnIndex || rowB.cells.length <= columnIndex) return 0; 
                         let valA = rowA.cells[columnIndex].textContent.trim();
                         let valB = rowB.cells[columnIndex].textContent.trim();
-                        if (valA === '-' || valB === '-') {
-                            if (newSortOrder === 'asc') return valA === '-' ? -1 : (valB === '-' ? 1: 0);
-                            else return valA === '-' ? 1 : (valB === '-' ? -1: 0);
-                        }
+                        if (valA === '-' || valB === '-') return newSortOrder === 'asc' ? (valA === '-' ? -1 : (valB === '-' ? 1: 0)) : (valA === '-' ? 1 : (valB === '-' ? -1: 0));
                         if (sortType === 'number') {
-                            valA = parseFloat(valA.replace(/,/g, ''));
-                            valB = parseFloat(valB.replace(/,/g, ''));
+                            valA = parseFloat(valA.replace(/,/g, '')); valB = parseFloat(valB.replace(/,/g, ''));
                             if (isNaN(valA) && isNaN(valB)) return 0;
                             if (isNaN(valA)) return newSortOrder === 'asc' ? -1 : 1;
                             if (isNaN(valB)) return newSortOrder === 'asc' ? 1 : -1;
                         }
                         let comparison = 0;
-                        if (valA > valB) comparison = 1;
-                        else if (valA < valB) comparison = -1;
+                        if (valA > valB) comparison = 1; else if (valA < valB) comparison = -1;
                         return newSortOrder === 'asc' ? comparison : comparison * -1;
                     });
                     rows.forEach(row => tbody.appendChild(row));
@@ -1044,43 +941,29 @@
             });
         }
         
-        // --- PPTX Generation Functions ---
-        function isValidDate(d) {
-            return d instanceof Date && !isNaN(d);
-        }
+        function isValidDate(d) { return d instanceof Date && !isNaN(d); }
 
         function extractDateRange() {
             if (!parsedCsvData || parsedCsvData.length === 0) return "N/A";
-
-            let dates = [];
-            let dateHeader = null;
+            let dates = [], dateHeader = null;
             const headersToSearch = currentCsvHeaders || Object.keys(parsedCsvData[0] || {});
-
-
             if (currentCsvType === 'overview') {
                 dateHeader = headersToSearch.find(h => normalizeHeader(h) === 'date');
             } else if (currentCsvType === 'content') {
                 const possibleDateHeaders = ['date', 'time', 'timestamp', 'createdat', 'publishedat', 'postdate', 'datecreated', 'postedat'];
                 for (const pHeader of possibleDateHeaders) {
                     const foundHeader = headersToSearch.find(h => normalizeHeader(h) === pHeader);
-                    if (foundHeader) {
-                        dateHeader = foundHeader;
-                        break;
-                    }
+                    if (foundHeader) { dateHeader = foundHeader; break; }
                 }
             }
-
             if (dateHeader) {
                 parsedCsvData.forEach(row => {
                     if (row[dateHeader]) {
                         let dateStr = row[dateHeader];
-                        if (typeof dateStr === 'string' && dateStr.includes(' +')) { 
-                            dateStr = dateStr.substring(0, dateStr.indexOf(' +')).trim();
-                        }
+                        if (typeof dateStr === 'string' && dateStr.includes(' +')) dateStr = dateStr.substring(0, dateStr.indexOf(' +')).trim();
                         const d = new Date(dateStr);
-                        if (isValidDate(d)) {
-                            dates.push(d);
-                        } else {
+                        if (isValidDate(d)) dates.push(d);
+                        else {
                             const parts = dateStr.replace(/,/g, '').split(' ');
                             if (parts.length === 3) {
                                 const reorderedDateStr = `${parts[1]} ${parts[0]} ${parts[2]}`; 
@@ -1091,13 +974,10 @@
                     }
                 });
             }
-
             if (dates.length > 0) {
                 dates.sort((a, b) => a - b);
                 const options = { year: 'numeric', month: 'short', day: 'numeric' };
-                const minDate = dates[0].toLocaleDateString(undefined, options);
-                const maxDate = dates[dates.length - 1].toLocaleDateString(undefined, options);
-                return `${minDate} to ${maxDate}`;
+                return `${dates[0].toLocaleDateString(undefined, options)} to ${dates[dates.length - 1].toLocaleDateString(undefined, options)}`;
             }
             const file = csvFileInput.files.length > 0 ? csvFileInput.files[0].name : "Loaded Data";
             return `Report for ${file}`; 
@@ -1105,166 +985,183 @@
 
         function addSectionSlide(pptx, titleText, explainerText, contentCallback) {
             let slide = pptx.addSlide();
-            slide.addText(titleText, { 
-                x: 0.5, y: 0.3, w: '90%', h: 0.5, 
-                fontSize: 24, bold: true, color: '363636', align: pptx.AlignH.left 
-            });
-            slide.addText(explainerText, { 
-                x: 0.5, y: 0.9, w: '90%', h: 0.4, 
-                fontSize: 11, italic: true, color: '7F7F7F', align: pptx.AlignH.left 
-            });
-            if (contentCallback) {
-                contentCallback(slide, pptx); 
-            }
+            slide.addText(titleText, { x: 0.5, y: 0.3, w: '90%', h: 0.5, fontSize: 24, bold: true, color: '363636', align: pptx.AlignH.left });
+            slide.addText(explainerText, { x: 0.5, y: 0.9, w: '90%', h: 0.4, fontSize: 11, italic: true, color: '7F7F7F', align: pptx.AlignH.left });
+            if (contentCallback) contentCallback(slide, pptx); 
         }
 
-
         function generatePptxReport() {
-            if (!parsedCsvData || parsedCsvData.length === 0 || typeof PptxGenJS === 'undefined') {
-                // MODIFIED: Replaced alert with status message
-                uploadStatus.textContent = "No data loaded or PPTX library not found. Please load a CSV first.";
-                uploadStatus.style.color = 'red';
+            console.log('generatePptxReport function CALLED.'); 
+
+            if (!downloadPptxButton || downloadPptxButton.disabled) {
+                console.warn('Download button is not available or is disabled. PPTX generation aborted.');
+                if (uploadStatus) {
+                    uploadStatus.textContent = "Download button is not ready. Please load data first.";
+                    uploadStatus.style.color = 'orange';
+                }
                 return;
             }
 
-            let pptx = new PptxGenJS();
-            pptx.layout = 'LAYOUT_16X9'; 
+            // Retry mechanism for PptxGenJS availability
+            const attemptPptxGeneration = (retryCount = 0) => {
+                console.log(`Attempting PPTX generation (Retry: ${retryCount}). typeof PptxGenJS:`, typeof PptxGenJS);
+                console.log('Checking parsedCsvData. Length:', parsedCsvData ? parsedCsvData.length : 'null or undefined');
 
-            const dateRangeStr = extractDateRange();
+                if (typeof PptxGenJS === 'undefined') {
+                    if (retryCount < 5) { // Retry up to 5 times (e.g., 500ms total if 100ms delay)
+                        console.warn(`PptxGenJS is undefined. Retrying in 100ms... (Retry ${retryCount + 1})`);
+                        setTimeout(() => attemptPptxGeneration(retryCount + 1), 100);
+                        return;
+                    }
+                    console.error("CRITICAL: PptxGenJS library is still undefined after retries. Cannot generate PPTX.");
+                    if (uploadStatus) {
+                        uploadStatus.textContent = "Error: PowerPoint library (PptxGenJS) not loaded or initialized. Check console.";
+                        uploadStatus.style.color = 'red';
+                    }
+                     if (uploadStatus && !uploadStatus.textContent.includes("Failed to load PowerPoint library") && !document.body.textContent.includes("Error: Failed to load PowerPoint library")) {
+                         console.error("PptxGenJS script might appear loaded (no onerror event on script tag) but failed to initialize globally. This is an unusual state possibly due to sandbox restrictions on script execution/initialization.");
+                    }
+                    return;
+                }
+                
+                if (!parsedCsvData || parsedCsvData.length === 0) {
+                    console.error("PPTX Generation Pre-check FAILED: parsedCsvData is empty.");
+                    if (uploadStatus) {
+                        uploadStatus.textContent = "No data loaded. Please load a CSV file first.";
+                        uploadStatus.style.color = 'red';
+                    }
+                    return;
+                }
+                
+                console.log('Starting PPTX generation...');
+                if (uploadStatus) {
+                    uploadStatus.textContent = "Generating slide deck...";
+                    uploadStatus.style.color = 'inherit';
+                }
 
-            // Slide 1: Title Page
-            let titleSlide = pptx.addSlide();
-            titleSlide.background = { color: "F1F1F1" };
-            titleSlide.addText(`@IntersectMBO Report`, { 
-                x: 0.5, y: 2.0, w: '90%', h: 1, 
-                fontSize: 44, bold: true, color: '0077C8', align: pptx.AlignH.center 
-            });
-            titleSlide.addText(dateRangeStr, { 
-                x: 0.5, y: 3.0, w: '90%', h: 0.75, 
-                fontSize: 28, color: '363636', align: pptx.AlignH.center 
-            });
-             titleSlide.addText(`Generated: ${new Date().toLocaleDateString()}`, { 
-                x: 0.5, y: 6.5, w: '90%', h: 0.5, 
-                fontSize: 10, color: '7F7F7F', align: pptx.AlignH.right 
-            });
+                try {
+                    let pptx = new PptxGenJS();
+                    pptx.layout = 'LAYOUT_16X9'; 
+                    const dateRangeStr = extractDateRange();
 
+                    console.log('Adding title slide...');
+                    let titleSlide = pptx.addSlide();
+                    titleSlide.background = { color: "F1F1F1" };
+                    titleSlide.addText(`@IntersectMBO Report`, { x: 0.5, y: 2.0, w: '90%', h: 1, fontSize: 44, bold: true, color: '0077C8', align: pptx.AlignH.center });
+                    titleSlide.addText(dateRangeStr, { x: 0.5, y: 3.0, w: '90%', h: 0.75, fontSize: 28, color: '363636', align: pptx.AlignH.center });
+                    titleSlide.addText(`Generated: ${new Date().toLocaleDateString()}`, { x: 0.5, y: 6.5, w: '90%', h: 0.5, fontSize: 10, color: '7F7F7F', align: pptx.AlignH.right });
+                    console.log('Title slide added.');
 
-            if (currentCsvType === 'content') {
-                if (metricsTableBodyContent.querySelectorAll('tr').length > 1) { 
-                    addSectionSlide(pptx, "Content Performance Metrics", 
-                        "This slide summarizes the overall performance of your posts, showing total and average values for key metrics.",
-                        (slide, pptxInstance) => {
-                            let tableData = [];
-                            const headerCells = Array.from(document.getElementById('metricsTableContent').querySelectorAll('thead th')).map(th => th.textContent.replace('Total', 'Total ').replace('Average per Post', 'Avg. /Post').trim());
-                            tableData.push(headerCells.map(header => ({ text: header, options: { bold: true, fill: 'E5E7EB', color: '374151' } })));
-
-                            metricsTableBodyContent.querySelectorAll('tr').forEach(row => {
-                                const cells = Array.from(row.querySelectorAll('td')).map(td => td.textContent.trim());
-                                if (cells.length === headerCells.length) tableData.push(cells);
-                            });
-                            if (tableData.length > 1) {
-                                slide.addTable(tableData, { 
-                                    x: 0.5, y: 1.5, w: 9, autoPage: true, rowH: 0.3,
-                                    colW: [4, 2.5, 2.5], 
-                                    border: { type: 'solid', pt: 1, color: 'D1D5DB' },
-                                    fontFace: "Arial", fontSize: 10, valign: 'middle', align: pptxInstance.AlignH.left
+                    if (currentCsvType === 'content') {
+                        console.log('Processing content CSV slides...');
+                        if (metricsTableBodyContent.querySelectorAll('tr').length > 1) { 
+                            console.log('Adding Content Performance Metrics slide...');
+                            addSectionSlide(pptx, "Content Performance Metrics", "This slide summarizes the overall performance of your posts, showing total and average values for key metrics.", (slide, pptxInstance) => {
+                                let tableData = [];
+                                const headerCells = Array.from(document.getElementById('metricsTableContent').querySelectorAll('thead th')).map(th => th.textContent.replace('Total', 'Total ').replace('Average per Post', 'Avg. /Post').trim());
+                                tableData.push(headerCells.map(header => ({ text: header, options: { bold: true, fill: 'E5E7EB', color: '374151' } })));
+                                metricsTableBodyContent.querySelectorAll('tr').forEach(row => {
+                                    const cells = Array.from(row.querySelectorAll('td')).map(td => td.textContent.trim());
+                                    if (cells.length === headerCells.length) tableData.push(cells);
                                 });
-                            }
-                        }
-                    );
-                }
-
-                if (engagementRateDisplayContent.textContent !== 'N/A') {
-                     addSectionSlide(pptx, "Content Engagement Insights",
-                        "Highlights the overall engagement rate and lists primary drivers of user interaction.",
-                        (slide, pptxInstance) => {
-                            slide.addText(`Overall Engagement Rate: ${engagementRateDisplayContent.textContent}`, { 
-                                x: 0.5, y: 1.5, w: '90%', h: 0.5, fontSize: 16, bold: true 
+                                if (tableData.length > 1) slide.addTable(tableData, { x: 0.5, y: 1.5, w: 9, autoPage: true, rowH: 0.3, colW: [4, 2.5, 2.5], border: { type: 'solid', pt: 1, color: 'D1D5DB' }, fontFace: "Arial", fontSize: 10, valign: 'middle', align: pptxInstance.AlignH.left });
                             });
-                            let driversText = "Key Engagement Drivers:\n";
-                            engagementDriversListContent.querySelectorAll('li').forEach(li => {
-                                if (!li.classList.contains('placeholder-text')) driversText += `• ${li.textContent}\n`;
+                            console.log('Content Performance Metrics slide added.');
+                        }
+                        if (engagementRateDisplayContent.textContent !== 'N/A') {
+                            console.log('Adding Content Engagement Insights slide...');
+                            addSectionSlide(pptx, "Content Engagement Insights", "Highlights the overall engagement rate and lists primary drivers of user interaction.", (slide, pptxInstance) => {
+                                slide.addText(`Overall Engagement Rate: ${engagementRateDisplayContent.textContent}`, { x: 0.5, y: 1.5, w: '90%', h: 0.5, fontSize: 16, bold: true });
+                                let driversText = "Key Engagement Drivers:\n";
+                                engagementDriversListContent.querySelectorAll('li').forEach(li => { if (!li.classList.contains('placeholder-text')) driversText += `• ${li.textContent}\n`; });
+                                slide.addText(driversText, { x: 0.5, y: 2.2, w: '90%', h: 2, fontSize: 12, lineSpacing: 20 });
                             });
-                            slide.addText(driversText, { x: 0.5, y: 2.2, w: '90%', h: 2, fontSize: 12, lineSpacing: 20 });
+                            console.log('Content Engagement Insights slide added.');
                         }
-                    );
-                }
-
-                if (topPostsContainerContent.querySelector('.post-card-wrapper')) { 
-                    addSectionSlide(pptx, "Top Performing Posts Highlights",
-                        "Showcases your best-performing posts based on various metrics, indicating what resonates most with your audience.",
-                        (slide, pptxInstance) => {
-                            let yPos = 1.5;
-                            const postCards = topPostsContainerContent.querySelectorAll('.post-card-wrapper');
-                            postCards.forEach((cardWrapper, index) => {
-                                if (index >= 4) return; 
-                                const card = cardWrapper.querySelector('.post-card');
-                                if (card) {
-                                    const title = card.querySelector('h4') ? card.querySelector('h4').textContent : "Top Post";
-                                    const postText = card.querySelector('.leading-relaxed') ? card.querySelector('.leading-relaxed').textContent : "N/A";
-                                    const metricText = card.querySelector('.text-purple-600, .text-purple-400') ? card.querySelector('.text-purple-600, .text-purple-400').textContent : "";
-                                    
-                                    slide.addText(`${title} (${metricText})`, { x: 0.5, y: yPos, w:'90%', h:0.3, fontSize: 12, bold:true});
-                                    yPos += 0.35;
-                                    slide.addText(postText.substring(0,250) + (postText.length > 250 ? '...' : ''), { x:0.7, y:yPos, w:'85%', h:0.6, fontSize:10 });
-                                    yPos += 0.7;
-                                    if(yPos > 5) return; 
-                                }
+                        if (topPostsContainerContent.querySelector('.post-card-wrapper')) { 
+                            console.log('Adding Top Performing Posts slide...');
+                            addSectionSlide(pptx, "Top Performing Posts Highlights", "Showcases your best-performing posts based on various metrics, indicating what resonates most with your audience.", (slide, pptxInstance) => {
+                                let yPos = 1.5;
+                                const postCards = topPostsContainerContent.querySelectorAll('.post-card-wrapper');
+                                postCards.forEach((cardWrapper, index) => {
+                                    if (index >= 4) return; 
+                                    const card = cardWrapper.querySelector('.post-card');
+                                    if (card) {
+                                        const title = card.querySelector('h4') ? card.querySelector('h4').textContent : "Top Post";
+                                        const postText = card.querySelector('.leading-relaxed') ? card.querySelector('.leading-relaxed').textContent : "N/A";
+                                        const metricText = card.querySelector('.text-purple-600, .text-purple-400') ? card.querySelector('.text-purple-600, .text-purple-400').textContent : "";
+                                        slide.addText(`${title} (${metricText})`, { x: 0.5, y: yPos, w:'90%', h:0.3, fontSize: 12, bold:true}); yPos += 0.35;
+                                        slide.addText(postText.substring(0,250) + (postText.length > 250 ? '...' : ''), { x:0.7, y:yPos, w:'85%', h:0.6, fontSize:10 }); yPos += 0.7;
+                                        if(yPos > 5) return; 
+                                    }
+                                });
                             });
+                            console.log('Top Performing Posts slide added.');
                         }
-                    );
-                }
-            } else if (currentCsvType === 'overview') {
-                if (overviewSummaryCards.querySelector('.metric-card')) {
-                    addSectionSlide(pptx, "Account Overview Analytics",
-                        "Provides a high-level view of account performance, including key summary metrics. Daily data table is available in the web view.",
-                        (slide, pptxInstance) => {
-                            let yPos = 1.5;
-                            const cards = overviewSummaryCards.querySelectorAll('.metric-card');
-                            cards.forEach((card, idx) => {
-                                if (idx >= 6) return; 
-                                const label = card.querySelector('.metric-label').textContent;
-                                const value = card.querySelector('.metric-value').textContent;
-                                slide.addText(`• ${label}: ${value}`, {x:0.5, y:yPos, w: '90%', h: 0.3, fontSize: 12});
-                                yPos += 0.4;
+                    } else if (currentCsvType === 'overview') {
+                        console.log('Processing overview CSV slides...');
+                        if (overviewSummaryCards.querySelector('.metric-card')) {
+                            console.log('Adding Account Overview Analytics slide...');
+                            addSectionSlide(pptx, "Account Overview Analytics", "Provides a high-level view of account performance, including key summary metrics. Daily data table is available in the web view.", (slide, pptxInstance) => {
+                                let yPos = 1.5;
+                                const cards = overviewSummaryCards.querySelectorAll('.metric-card');
+                                cards.forEach((card, idx) => {
+                                    if (idx >= 6) return; 
+                                    const label = card.querySelector('.metric-label').textContent;
+                                    const value = card.querySelector('.metric-value').textContent;
+                                    slide.addText(`• ${label}: ${value}`, {x:0.5, y:yPos, w: '90%', h: 0.3, fontSize: 12}); yPos += 0.4;
+                                });
+                                slide.addText("Detailed daily data is available in the main report table.", {x:0.5, y: yPos + 0.5, w:'90%', h:0.3, fontSize:10, italic:true});
                             });
-                            slide.addText("Detailed daily data is available in the main report table.", {x:0.5, y: yPos + 0.5, w:'90%', h:0.3, fontSize:10, italic:true});
+                            console.log('Account Overview Analytics slide added.');
                         }
-                    );
-                }
-            }
+                    }
 
-
-            const interpretiveSections = [
-                { id: 'content-themes', title: "Key Content Themes (Sample Data Insight)", explainer: "This slide outlines major content themes observed in the sample data, offering a baseline for content pillars." },
-                { id: 'key-observations', title: "Key Observations & Potential Insights (Sample Data Insight)", explainer: "Based on sample data, this highlights significant observations that could inform content strategy." },
-                { id: 'conclusion', title: "Conclusion (Sample Data Insight)", explainer: "Offers a concluding summary based on the analysis of sample data, summarizing performance and key takeaways." }
-            ];
-
-            interpretiveSections.forEach(sectionInfo => {
-                const sectionElement = document.getElementById(sectionInfo.id);
-                if (sectionElement) {
-                    addSectionSlide(pptx, sectionInfo.title, sectionInfo.explainer, (slide, pptxInstance) => {
-                        const listItems = sectionElement.querySelectorAll('ul li');
-                        const paragraph = sectionElement.querySelector('p');
-                        let contentText = "";
-                        if (listItems.length > 0) {
-                            listItems.forEach(li => contentText += `• ${li.textContent.trim()}\n`);
-                        } else if (paragraph) {
-                            contentText = paragraph.textContent.trim();
+                    console.log('Processing interpretive slides...');
+                    const interpretiveSections = [
+                        { id: 'content-themes', title: "Key Content Themes (Sample Data Insight)", explainer: "This slide outlines major content themes observed in the sample data, offering a baseline for content pillars." },
+                        { id: 'key-observations', title: "Key Observations & Potential Insights (Sample Data Insight)", explainer: "Based on sample data, this highlights significant observations that could inform content strategy." },
+                        { id: 'conclusion', title: "Conclusion (Sample Data Insight)", explainer: "Offers a concluding summary based on the analysis of sample data, summarizing performance and key takeaways." }
+                    ];
+                    interpretiveSections.forEach(sectionInfo => {
+                        const sectionElement = document.getElementById(sectionInfo.id);
+                        if (sectionElement) {
+                            console.log(`Adding ${sectionInfo.title} slide...`);
+                            addSectionSlide(pptx, sectionInfo.title, sectionInfo.explainer, (slide, pptxInstance) => {
+                                const listItems = sectionElement.querySelectorAll('ul li'); const paragraph = sectionElement.querySelector('p');
+                                let contentText = "";
+                                if (listItems.length > 0) listItems.forEach(li => contentText += `• ${li.textContent.trim()}\n`);
+                                else if (paragraph) contentText = paragraph.textContent.trim();
+                                slide.addText(contentText, { x: 0.5, y: 1.5, w: '90%', h: 4, fontSize: 12, lineSpacing: 20 });
+                            });
+                            console.log(`${sectionInfo.title} slide added.`);
                         }
-                        slide.addText(contentText, { x: 0.5, y: 1.5, w: '90%', h: 4, fontSize: 12, lineSpacing: 20 });
                     });
+                    
+                    const filename = `IntersectMBO_Report_${new Date().toISOString().slice(0,10).replace(/-/g,'')}.pptx`;
+                    console.log(`Attempting to download file: ${filename}`);
+                    pptx.writeFile({ fileName: filename })
+                        .then(fileNameResult => { 
+                            console.log(`PPTX file ${fileNameResult} generation and download initiated.`);
+                            if (uploadStatus) { uploadStatus.textContent = "Slide deck download started."; uploadStatus.style.color = 'green';}
+                        })
+                        .catch(err => {
+                            console.error("Error during pptx.writeFile (file download):", err);
+                            if (uploadStatus) { uploadStatus.textContent = "Error downloading slide deck. Check console and browser permissions."; uploadStatus.style.color = 'red';}
+                        });
+                } catch (error) {
+                    console.error("Error during PPTX generation process:", error);
+                    if (uploadStatus) { uploadStatus.textContent = "Error during slide deck generation. Check console."; uploadStatus.style.color = 'red';}
                 }
-            });
-            
-            const filename = `IntersectMBO_Report_${new Date().toISOString().slice(0,10).replace(/-/g,'')}.pptx`;
-            pptx.writeFile({ fileName: filename });
-        }
+            }; // End of attemptPptxGeneration function
 
-        // Initial calls to setup
+            // Initial call to attempt generation
+            attemptPptxGeneration();
+        } // End of generatePptxReport
+
         resetUI(); 
         document.getElementById('currentYear').textContent = new Date().getFullYear();
+        console.log('Initial UI setup complete.');
     });
     </script>
 </body>
